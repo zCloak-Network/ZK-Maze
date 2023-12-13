@@ -14,8 +14,8 @@ export const GameOver = ({
   handleSettlement(path);
 
   return (
-    <div className="absolute left-0 top-0 w-full h-full flex flex-col justify-center items-center bg-[rgba(0,0,0,.3)] text-white p-4">
-      <div className="mockup-code bg-base-100 text-base-content">
+    <div className="flex flex-col h-full bg-[rgba(0,0,0,.3)] text-white w-full p-4 top-0 left-0 absolute justify-center items-center">
+      <div className="bg-base-100 text-base-content mockup-code">
         <pre data-prefix="$">
           <code>Game completed!</code>
         </pre>
@@ -35,15 +35,15 @@ export const GameOver = ({
           <code>Congratulations!</code>
         </pre>
 
-        <div className="w-full px-4 mt-4 text-center">
-          <button className="btn btn-sm rounded-none btn-success ">
-            TransactionHash
+        <div className="mt-4 text-center w-full px-4">
+          <button className="rounded-none text-success btn btn-sm btn-ghost">
+            [TransactionHash]
           </button>
           <button
-            className="btn btn-sm rounded-none btn-error text-white"
+            className="rounded-none text-error btn btn-sm btn-ghost"
             onClick={onExit}
           >
-            Exit
+            [Exit]
           </button>
         </div>
       </div>
