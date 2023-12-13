@@ -39,6 +39,6 @@ jobs:
           port: 22
           key: ${{ secrets.KEY }}
           source: ${{ github.workspace }}/dist
-          target: "/home/ubuntu/game"
+          target: "/home/ubuntu/zkmaze"
           strip_components: 3
           rm: true
