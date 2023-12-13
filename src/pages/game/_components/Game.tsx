@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+
 import { useRef, useEffect, useState, useCallback } from "react";
 import { Application, Sprite, Assets, Container, TilingSprite } from "pixi.js";
 // import { renderSpirit } from "./_scripts";
@@ -33,7 +38,7 @@ export const Game = () => {
   useEffect(() => {
     wrapRef.current?.appendChild(app.view as HTMLCanvasElement);
 
-    Assets.load("/spritesheet.json").then((sheet) => {
+    void Assets.load("/spritesheet.json").then((sheet) => {
       const gameScene = new Container();
       app.stage.addChild(gameScene);
 

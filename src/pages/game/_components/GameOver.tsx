@@ -114,12 +114,13 @@ export const GameOver = ({
   useEffect(() => {
     console.log(SettlementOver, step);
     if (!SettlementOver) {
-      SettlementProgress[step].run?.().then((res) => {
+      void SettlementProgress[step].run?.().then((res) => {
         if (res) {
           setStep(step + 1);
         }
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
   return (

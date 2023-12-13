@@ -51,8 +51,6 @@ export const safeMove = (
   direction: "left" | "right" | "up" | "down",
   callback?: (result: TextureType, position: Step) => void
 ) => {
-  let result: TextureType;
-
   const step = 1;
   const { x, y } = point;
   let newPosition = { x, y };
@@ -85,7 +83,7 @@ export const safeMove = (
       break;
   }
 
-  result = isCollideType(newPosition);
+  const result: TextureType = isCollideType(newPosition);
 
   if (isOutOfBound(newPosition)) {
     return null;
@@ -102,7 +100,7 @@ export const filterMapPoint = (
   map: TextureType[][],
   filter: (item: TextureType) => boolean
 ) => {
-  let result: Step[] = [];
+  const result: Step[] = [];
   if (map.length > 0 && typeof filter === "function") {
     for (let rows = 0; rows < map.length; rows++) {
       for (let cols = 0; cols < map[0].length; cols++) {

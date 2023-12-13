@@ -20,7 +20,7 @@ export const Hero = () => {
             through a maze excaping game. please connect your wallet to play
           </p>
           {/* <ButtonEnable /> */}
-          <button className="btn btn-primary" onClick={() => open()}>
+          <button className="btn btn-primary" onClick={() => void open()}>
             Connect Wallet to Play
           </button>
         </div>
