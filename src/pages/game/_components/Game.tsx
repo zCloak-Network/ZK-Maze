@@ -20,6 +20,8 @@ import {
 import play from "../_scripts/play";
 import { GameOver } from "./GameOver";
 
+import { Header } from "./Header";
+
 export const Game = () => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const app = new Application({ width: StageWidth, height: StageHeight });
@@ -136,12 +138,7 @@ export const Game = () => {
 
   return (
     <div>
-      <header className="flex shadow p-4 items-center">
-        <div className="font-semibold flex-1 text-primary text-2xl">
-          ZK Maze
-        </div>
-        <w3m-button />
-      </header>
+      <Header />
       <div
         ref={wrapRef}
         className="mx-auto my-8 relative overflow-hidden"

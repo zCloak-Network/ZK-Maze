@@ -76,7 +76,7 @@ export const GameOver = ({
           setTimeout(() => {
             setTransactionHash("sfsdfsfsfsfs");
             resolve(true);
-          }, 100);
+          }, 1000);
         });
       },
     },
@@ -127,6 +127,9 @@ export const GameOver = ({
       <div className="bg-base-100 text-base-content min-h-20 mockup-code">
         {SettlementProgress.slice(0, step + 1).map((log, index) => (
           <pre data-prefix={log.prefix} className={log.class} key={index}>
+            {step === index && (
+              <span className="loading loading-ball loading-xs"></span>
+            )}
             <code>{log.content}</code>
           </pre>
         ))}
