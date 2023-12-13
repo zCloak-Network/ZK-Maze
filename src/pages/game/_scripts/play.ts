@@ -1,5 +1,5 @@
-import { Sprite } from "pixi.js";
+// import { Sprite } from "pixi.js";
 
-export default function (delta: number, character: Sprite) {
+export default function () {
   // console.log(delta);
 }
