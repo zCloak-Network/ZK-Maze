@@ -139,6 +139,7 @@ export const Game = () => {
   return (
     <div>
       <Header />
+
       <div
         ref={wrapRef}
         className="mx-auto my-8 relative overflow-hidden"
