@@ -1,0 +1,45 @@
+{
+  "name": "pixi-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build:dev": "tsc && vite build --mode development && cp dist/index.html dist/404.html",
+    "build": "tsc && vite build && cp dist/index.html dist/404.html",
+    "lint": "eslint . --fix --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "postinstall": "husky install"
+  },
+  "dependencies": {
+    "@rwh/keystrokes": "^1.4.0",
+    "@web3modal/wagmi": "^3.4.0",
+    "axios": "^1.6.2",
+    "daisyui": "^4.4.19",
+    "pixi.js": "7.3.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.1",
+    "react-toastify": "^9.1.3",
+    "tailwindcss": "^3.3.6",
+    "viem": "^1.19.13",
+    "wagmi": "^1.4.10"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@typescript-eslint/eslint-plugin": "^6.13.2",
+    "@typescript-eslint/parser": "^6.13.2",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.16",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "husky": "^8.0.3",
+    "postcss": "^8.4.32",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.7",
+    "vite-plugin-svgr": "^4.2.0"
+  }
+}
