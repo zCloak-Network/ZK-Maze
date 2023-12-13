@@ -130,6 +130,7 @@ export const Game = () => {
       character && play();
     };
     app.ticker.add(gameLoop);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const reStartGame = useCallback(() => {
