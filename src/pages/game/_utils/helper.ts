@@ -6,10 +6,11 @@ import {
   StageWidthCells,
   Map,
   TextureType,
+  Step,
 } from "./config";
 import { Sprite } from "pixi.js";
 // 检测坐标系中的点是否越界
-export function isOutOfBound(point: { x: number; y: number }) {
+export function isOutOfBound(point: Step) {
   const { x, y } = point;
   return (
     x < 0 || y < 0 || x > StageWidth - CellSize || y > StageHeight - CellSize
@@ -29,7 +30,7 @@ export function isCollide(sprite1: Sprite, sprite2: Sprite) {
 }
 
 // 特定类型碰撞检测
-export function isCollideType(sprite1: { x: number; y: number }) {
+export function isCollideType(sprite1: Step) {
   const { x, y } = sprite1;
   let result: TextureType = 0;
   for (let i = 0; i < StageHeightCells; i++) {
@@ -48,7 +49,7 @@ export function isCollideType(sprite1: { x: number; y: number }) {
 export const safeMove = (
   point: Sprite,
   direction: "left" | "right" | "up" | "down",
-  callback?: (result: TextureType, position: { x: number; y: number }) => void
+  callback?: (result: TextureType, position: Step) => void
 ) => {
   let result: TextureType;
 
@@ -94,4 +95,25 @@ export const safeMove = (
     point.x = newPosition.x;
     point.y = newPosition.y;
   }
+};
+
+// 遍历二维数组
+export const filterMapPoint = (
+  map: TextureType[][],
+  filter: (item: TextureType) => boolean
+) => {
+  let result: Step[] = [];
+  if (map.length > 0 && typeof filter === "function") {
+    for (let rows = 0; rows < map.length; rows++) {
+      for (let cols = 0; cols < map[0].length; cols++) {
+        if (filter(map[rows][cols])) {
+          result.push({
+            x: cols,
+            y: rows,
+          });
+        }
+      }
+    }
+  }
+  return result;
 };

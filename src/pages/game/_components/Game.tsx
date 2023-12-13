@@ -13,22 +13,20 @@ import {
   StageHeightCells,
   TextureType,
   safeMove,
-  PlaceOfBirth,
+  StartPosition,
+  ExitPosition,
   Step,
 } from "../_utils";
 import play from "../_scripts/play";
 import { GameOver } from "./GameOver";
-import { useDisconnect, useAccount } from "wagmi";
 
 export const Game = () => {
-  const { disconnect } = useDisconnect();
   const wrapRef = useRef<HTMLDivElement>(null);
   const app = new Application({ width: StageWidth, height: StageHeight });
   const { bindKey } = keystrokes as unknown as Keystrokes;
   const [gameIsOver, setGameOver] = useState(false);
   const [path, setPath] = useState<Step[]>([]);
   const [character, setCharacter] = useState<Sprite>();
-  const { address, isConnected } = useAccount();
 
   useEffect(() => {
     wrapRef.current?.appendChild(app.view as HTMLCanvasElement);
@@ -70,8 +68,8 @@ export const Game = () => {
       const _character = new Sprite(TextureRight);
       _character.width = CellSize;
       _character.height = CellSize;
-      _character.x = PlaceOfBirth.x * CellSize;
-      _character.y = PlaceOfBirth.y * CellSize;
+      _character.x = StartPosition.x * CellSize;
+      _character.y = StartPosition.y * CellSize;
       gameScene.addChild(_character);
       setCharacter(_character);
       // game logic
@@ -83,12 +81,13 @@ export const Game = () => {
         if (result === 0) {
           path.push({ x: position.x / CellSize, y: position.y / CellSize });
           return true;
-        } else if (result === 3) {
+        } else if (
+          position.x / CellSize === ExitPosition.x &&
+          position.y / CellSize === ExitPosition.y
+        ) {
+          // ExitPosition
           setGameOver(true);
-          setPath([
-            ...path,
-            { x: position.x / CellSize, y: position.y / CellSize },
-          ]);
+          setPath([...path, { ...ExitPosition }]);
           path.length = 0;
           return true;
         } else {
@@ -130,28 +129,22 @@ export const Game = () => {
     setGameOver(false);
     setPath([]);
     if (character) {
-      character.x = PlaceOfBirth.x * CellSize;
-      character.y = PlaceOfBirth.y * CellSize;
+      character.x = StartPosition.x * CellSize;
+      character.y = StartPosition.y * CellSize;
     }
   }, [character]);
 
   return (
-    <div className="wrap">
-      <div className="text-center p-4">
-        Your address:
-        {address}
-        <button
-          className="btn btn-warning"
-          onClick={() => {
-            disconnect();
-          }}
-        >
-          Logout
-        </button>
-      </div>
+    <div>
+      <header className="flex shadow p-4 items-center">
+        <div className="font-semibold flex-1 text-primary text-2xl">
+          ZK Maze
+        </div>
+        <w3m-button />
+      </header>
       <div
         ref={wrapRef}
-        className="mx-auto relative"
+        className="mx-auto my-8 relative overflow-hidden"
         style={{
           width: `${StageWidth}px`,
           height: `${StageHeight}px`,

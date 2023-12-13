@@ -5,6 +5,10 @@ export const CellSize = 64 * Scale;
 export const StageWidth = StageWidthCells * CellSize;
 export const StageHeight = StageHeightCells * CellSize;
 
+export type Step = {
+  x: number;
+  y: number;
+};
 export type TextureType = 0 | 1 | 2 | 3 | 4;
 export const TypeTextureMap: Record<TextureType, string> = {
   0: "tile_0468.png", // 地面
@@ -27,12 +31,14 @@ export const Map: TextureType[][] = [
   [0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
 ];
 
-export type Step = {
-  x: number;
-  y: number;
-};
-
-export const PlaceOfBirth: Step = {
+export const StartPosition: Step = {
   x: 0,
   y: 9,
 };
+
+export const ExitPosition: Step = {
+  x: 9,
+  y: 1,
+};
+
+export const ShortestPathLength = 19;

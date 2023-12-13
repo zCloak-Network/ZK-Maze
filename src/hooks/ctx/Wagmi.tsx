@@ -1,5 +1,4 @@
 import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/react";
-
 import { WagmiConfig } from "wagmi";
 import { arbitrum, mainnet } from "viem/chains";
 
@@ -18,7 +17,12 @@ const chains = [mainnet, arbitrum];
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
 
 // 3. Create modal
-createWeb3Modal({ wagmiConfig, projectId, chains });
+createWeb3Modal({
+  wagmiConfig,
+  projectId,
+  chains,
+  themeMode: "light",
+});
 
 export function WagmiRoot({ children }: { children: React.ReactNode }) {
   return <WagmiConfig config={wagmiConfig}>{children}</WagmiConfig>;
