@@ -119,8 +119,8 @@ export const Game = () => {
     });
 
     //Start the game loop
-    const gameLoop = (delta: number) => {
-      character && play(delta, character);
+    const gameLoop = () => {
+      character && play();
     };
     app.ticker.add(gameLoop);
   }, []);
