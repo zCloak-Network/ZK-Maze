@@ -1,40 +1,70 @@
 import React, { createContext, useReducer, useContext } from "react";
+import { Sprite } from "pixi.js";
+import { Step } from "./pages/game/_utils";
 
-type StoreType = {
+export type StoreType = {
+  character: Sprite | undefined;
   moving: boolean;
-  direction: "left" | "right" | "up" | "down";
+  path: Step[];
+  moveTarget: Step | undefined;
 };
 
-type StoreDispatch = {
+export type StoreDispatch = {
   type: string;
   param?: Record<string, unknown>;
 };
 
-const initialState: StoreType = { moving: false, direction: "right" };
+const initialState: StoreType = {
+  character: undefined,
+  moving: false,
+  path: [],
+  moveTarget: undefined,
+};
 
 function reducer(state: StoreType, action: StoreDispatch) {
   const result: StoreType = { ...state };
 
   switch (action.type) {
+    case "init":
+      if (action.param?.character && Array.isArray(action.param?.path)) {
+        result.character = action.param.character as Sprite;
+        result.path = action.param.path as Step[];
+      }
+
+      break;
     case "move.left":
       result.moving = true;
-      result.direction = "left";
+      result.moveTarget = {
+        x: state.path[state.path.length - 1].x - 1,
+        y: state.path[state.path.length - 1].y,
+      };
       break;
     case "move.right":
       result.moving = true;
-      result.direction = "right";
+      result.moveTarget = {
+        x: state.path[state.path.length - 1].x + 1,
+        y: state.path[state.path.length - 1].y,
+      };
       break;
     case "move.up":
       result.moving = true;
-      result.direction = "up";
+      result.moveTarget = {
+        x: state.path[state.path.length - 1].x,
+        y: state.path[state.path.length - 1].y - 1,
+      };
       break;
     case "move.down":
       result.moving = true;
-      result.direction = "down";
+      result.moveTarget = {
+        x: state.path[state.path.length - 1].x,
+        y: state.path[state.path.length - 1].y + 1,
+      };
       break;
+
     case "move.stop":
       result.moving = false;
-      result.direction = state.direction;
+      result.moveTarget = undefined;
+      break;
       break;
 
     default:

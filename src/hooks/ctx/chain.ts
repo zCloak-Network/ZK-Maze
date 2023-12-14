@@ -10,8 +10,8 @@ export const L3 = {
     symbol: "ETH",
   },
   rpcUrls: {
-    public: { http: ["http://54.184.214.151:8449/"] },
-    default: { http: ["http://54.184.214.151:8449/"] },
+    public: { http: ["https://nitro.zkid.xyz/"] },
+    default: { http: ["https://nitro.zkid.xyz/"] },
   },
   blockExplorers: {
     default: { name: "SnowTrace", url: "https://54.184.214.151:4000/" },

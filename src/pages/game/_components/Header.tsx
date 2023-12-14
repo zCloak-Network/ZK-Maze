@@ -15,7 +15,7 @@ export const Header = () => {
         </div>
         <w3m-button />
       </header>
-      {selectedNetworkId !== String(L3.id) && (
+      {selectedNetworkId != String(L3.id) && (
         <div className="my-4 wrap">
           <div role="alert" className="alert ">
             <svg
@@ -32,8 +32,8 @@ export const Header = () => {
               ></path>
             </svg>
             <span className="text-sm">
-              Your network is not connected to ZK Maze, Please switch to L3
-              Network.
+              Your network({selectedNetworkId}) is not connected to ZK Maze,
+              Please switch to L3 Network.
             </span>
             <div>
               <button

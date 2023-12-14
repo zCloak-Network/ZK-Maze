@@ -5,18 +5,13 @@ import {
   StartPosition,
   ExitPosition,
   ShortestPathLength,
-  Step,
   filterMapPoint,
   Map,
 } from "../_utils";
+import { gameState } from "../_utils";
 
-export const GameOver = ({
-  path,
-  onExit,
-}: {
-  path: Step[];
-  onExit: () => void;
-}) => {
+export const GameOver = ({ onExit }: { onExit: () => void }) => {
+  const { path } = gameState;
   const SettlementProgress = [
     {
       prefix: "$",

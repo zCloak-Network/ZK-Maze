@@ -36,7 +36,7 @@ export function isCollideType(sprite1: Step) {
   for (let i = 0; i < StageHeightCells; i++) {
     for (let j = 0; j < StageWidthCells; j++) {
       if (Map[i][j] > 0) {
-        if (x / CellSize === j && y / CellSize === i) {
+        if (x === j && y === i) {
           result = Map[i][j];
           break;
         }
