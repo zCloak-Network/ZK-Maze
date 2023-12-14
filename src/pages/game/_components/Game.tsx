@@ -33,6 +33,8 @@ import {
 import { GameOver } from "./GameOver";
 import { gameState, dispatch } from "../_utils";
 import { Header } from "./Header";
+import { Tip } from "./Tip";
+import { Description } from "./Description";
 
 export const Game = () => {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -114,27 +116,39 @@ export const Game = () => {
           },
         });
 
-      // events
-      bindKey("ArrowUp", () => {
+      const handleKeyUp = () => {
         if (gameIsOver || gameState.moving) return;
         dispatch && dispatch({ type: "move.up" });
         move("up");
-      });
-      bindKey("ArrowRight", () => {
-        if (gameIsOver || gameState.moving) return;
-        dispatch && dispatch({ type: "move.right" });
-        move("right");
-      });
-      bindKey("ArrowDown", () => {
+      };
+
+      const handleKeyDown = () => {
         if (gameIsOver || gameState.moving) return;
         dispatch && dispatch({ type: "move.down" });
         move("down");
-      });
-      bindKey("ArrowLeft", () => {
+      };
+
+      const handleKeyLeft = () => {
         if (gameIsOver || gameState.moving) return;
         dispatch && dispatch({ type: "move.left" });
         move("left");
-      });
+      };
+
+      const handleKeyRight = () => {
+        if (gameIsOver || gameState.moving) return;
+        dispatch && dispatch({ type: "move.right" });
+        move("right");
+      };
+
+      bindKey("ArrowUp", handleKeyUp);
+      bindKey("ArrowRight", handleKeyRight);
+      bindKey("ArrowDown", handleKeyDown);
+      bindKey("ArrowLeft", handleKeyLeft);
+
+      bindKey("w", handleKeyUp);
+      bindKey("d", handleKeyRight);
+      bindKey("s", handleKeyDown);
+      bindKey("a", handleKeyLeft);
 
       //Start the game loop
       const gameLoop = (delta: number, character: Container) => {
@@ -233,6 +247,9 @@ export const Game = () => {
           {gameIsOver && <GameOver onExit={reStartGame} />}
         </div>
       </div>
+
+      <Tip />
+      <Description />
     </div>
   );
 };

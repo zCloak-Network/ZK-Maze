@@ -5,13 +5,10 @@
 html,
 body {
   font-family: "Poppins", sans-serif;
-  width: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
 }
 
 body {
-  @apply text-text1;
+  @apply text-text1 min-w-[640px];
 }
 
 .wrap {
