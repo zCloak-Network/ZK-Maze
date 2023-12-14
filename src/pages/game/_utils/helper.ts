@@ -8,7 +8,7 @@ import {
   TextureType,
   Step,
 } from "./config";
-import { Sprite } from "pixi.js";
+import { Sprite, AnimatedSprite, Container } from "pixi.js";
 // 检测坐标系中的点是否越界
 export function isOutOfBound(point: Step) {
   const { x, y } = point;
@@ -115,3 +115,107 @@ export const filterMapPoint = (
   }
   return result;
 };
+
+export const gameSpeed = 2;
+export function Role(
+  upAnimate: AnimatedSprite,
+  downAnimate: AnimatedSprite,
+  leftAnimate: AnimatedSprite,
+  rightAnimate: AnimatedSprite
+) {
+  const container = new Container();
+  container.width = CellSize;
+  container.height = CellSize;
+
+  container.addChild(upAnimate);
+  container.addChild(downAnimate);
+  container.addChild(leftAnimate);
+  container.addChild(rightAnimate);
+  upAnimate.visible = false;
+  upAnimate.x = 0;
+  upAnimate.y = 0;
+  upAnimate.animationSpeed = gameSpeed / 10;
+  downAnimate.visible = false;
+  downAnimate.x = 0;
+  downAnimate.y = 0;
+  downAnimate.animationSpeed = gameSpeed / 10;
+  leftAnimate.visible = false;
+  leftAnimate.x = 0;
+  leftAnimate.y = 0;
+  leftAnimate.animationSpeed = gameSpeed / 10;
+  rightAnimate.visible = true;
+  rightAnimate.x = 0;
+  rightAnimate.y = 0;
+  rightAnimate.animationSpeed = gameSpeed / 10;
+
+  let currentDirection: "up" | "down" | "left" | "right" = "right";
+
+  return {
+    character: container,
+    move: (direction: "up" | "down" | "left" | "right" | "stop") => {
+      switch (direction) {
+        case "up":
+          upAnimate.visible = true;
+          upAnimate.play();
+          downAnimate.visible = false;
+          downAnimate.stop();
+          leftAnimate.visible = false;
+          leftAnimate.stop();
+          rightAnimate.visible = false;
+          rightAnimate.stop();
+          currentDirection = direction;
+          break;
+        case "down":
+          upAnimate.visible = false;
+          upAnimate.stop();
+          downAnimate.visible = true;
+          downAnimate.play();
+          leftAnimate.visible = false;
+          leftAnimate.stop();
+          rightAnimate.visible = false;
+          rightAnimate.stop();
+          currentDirection = direction;
+          break;
+        case "left":
+          upAnimate.visible = false;
+          upAnimate.stop();
+          downAnimate.visible = false;
+          downAnimate.stop();
+          leftAnimate.visible = true;
+          leftAnimate.play();
+          rightAnimate.visible = false;
+          rightAnimate.stop();
+          currentDirection = direction;
+          break;
+        case "right":
+          upAnimate.visible = false;
+          upAnimate.stop();
+          downAnimate.visible = false;
+          downAnimate.stop();
+          leftAnimate.visible = false;
+          leftAnimate.stop();
+          rightAnimate.visible = true;
+          rightAnimate.play();
+          currentDirection = direction;
+          break;
+
+        case "stop":
+          switch (currentDirection) {
+            case "up":
+              upAnimate.gotoAndStop(0);
+              break;
+            case "down":
+              downAnimate.gotoAndStop(0);
+              break;
+            case "left":
+              leftAnimate.gotoAndStop(0);
+              break;
+            case "right":
+              rightAnimate.gotoAndStop(0);
+              break;
+          }
+          break;
+      }
+    },
+  };
+}

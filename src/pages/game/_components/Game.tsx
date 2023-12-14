@@ -4,8 +4,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 
 import { useRef, useEffect, useState } from "react";
-import { Application, Sprite, Assets, Container, TilingSprite } from "pixi.js";
-// import { renderSpirit } from "./_scripts";
+import {
+  Application,
+  Sprite,
+  Assets,
+  Container,
+  TilingSprite,
+  AnimatedSprite,
+} from "pixi.js";
 import * as keystrokes from "@rwh/keystrokes";
 import { Keystrokes } from "@rwh/keystrokes";
 import {
@@ -20,6 +26,8 @@ import {
   StartPosition,
   isOutOfBound,
   isCollideType,
+  gameSpeed,
+  Role,
 } from "../_utils";
 // import play from "../_scripts/play";
 import { GameOver } from "./GameOver";
@@ -64,23 +72,44 @@ export const Game = () => {
         }
       }
       // character
-      const TextureRight = sheet.textures["tile_0026.png"];
-      const TextureDown = sheet.textures["tile_0024.png"];
-      const TextureLeft = sheet.textures["tile_0023.png"];
-      const TextureUp = sheet.textures["tile_0025.png"];
+      const TextureRight = new AnimatedSprite([
+        sheet.textures["tile_0026.png"],
+        sheet.textures["tile_0053.png"],
+        sheet.textures["tile_0080.png"],
+      ]);
+      const TextureDown = new AnimatedSprite([
+        sheet.textures["tile_0024.png"],
+        sheet.textures["tile_0051.png"],
+        sheet.textures["tile_0078.png"],
+      ]);
+      const TextureLeft = new AnimatedSprite([
+        sheet.textures["tile_0023.png"],
+        sheet.textures["tile_0050.png"],
+        sheet.textures["tile_0077.png"],
+      ]);
+      const TextureUp = new AnimatedSprite([
+        sheet.textures["tile_0025.png"],
+        sheet.textures["tile_0052.png"],
+        sheet.textures["tile_0079.png"],
+      ]);
 
-      const _character = new Sprite(TextureRight);
-      _character.width = CellSize;
-      _character.height = CellSize;
-      _character.x = StartPosition.x * CellSize;
-      _character.y = StartPosition.y * CellSize;
-      gameScene.addChild(_character);
+      const { character, move } = Role(
+        TextureUp,
+        TextureDown,
+        TextureLeft,
+        TextureRight
+      );
+
+      character.x = StartPosition.x * CellSize;
+      character.y = StartPosition.y * CellSize;
+
+      gameScene.addChild(character);
 
       dispatch &&
         dispatch({
           type: "init",
           param: {
-            character: _character,
+            character,
             path: [StartPosition],
           },
         });
@@ -89,76 +118,90 @@ export const Game = () => {
       bindKey("ArrowUp", () => {
         if (gameIsOver || gameState.moving) return;
         dispatch && dispatch({ type: "move.up" });
+        move("up");
       });
       bindKey("ArrowRight", () => {
         if (gameIsOver || gameState.moving) return;
         dispatch && dispatch({ type: "move.right" });
+        move("right");
       });
       bindKey("ArrowDown", () => {
         if (gameIsOver || gameState.moving) return;
         dispatch && dispatch({ type: "move.down" });
+        move("down");
       });
       bindKey("ArrowLeft", () => {
         if (gameIsOver || gameState.moving) return;
         dispatch && dispatch({ type: "move.left" });
+        move("left");
       });
 
       //Start the game loop
-      app.ticker.add(gameLoop);
+      const gameLoop = (delta: number, character: Container) => {
+        const { moveTarget, moving, gameOver } = gameState;
+        if (character && moveTarget && moving) {
+          if (isOutOfBound(moveTarget)) {
+            return null;
+          }
+          const result: TextureType = isCollideType(moveTarget);
+          const xDirection =
+            moveTarget.x - character.x / CellSize >= 0 ? 1 : -1;
+          const yDirection =
+            moveTarget.y - character.y / CellSize >= 0 ? 1 : -1;
+          const moveDone =
+            character.x === moveTarget.x * CellSize &&
+            character.y === moveTarget.y * CellSize;
+
+          if (result === 0 || result === 3) {
+            if (
+              (xDirection === 1 &&
+                character.x + delta > moveTarget.x * CellSize) ||
+              (xDirection === -1 &&
+                character.x - delta < moveTarget.x * CellSize)
+            ) {
+              character.x = moveTarget.x * CellSize;
+              if (moveDone) {
+                dispatch &&
+                  dispatch({
+                    type: "move.stop",
+                  });
+                move("stop");
+              }
+            } else {
+              character.x += delta * gameSpeed * xDirection;
+            }
+
+            if (
+              (yDirection === 1 &&
+                character.y + delta > moveTarget.y * CellSize) ||
+              (yDirection === -1 &&
+                character.y - delta < moveTarget.y * CellSize)
+            ) {
+              character.y = moveTarget.y * CellSize;
+              if (moveDone) {
+                dispatch &&
+                  dispatch({
+                    type: "move.stop",
+                  });
+                move("stop");
+              }
+            } else {
+              character.y += delta * gameSpeed * yDirection;
+            }
+          } else {
+            dispatch && dispatch({ type: "move.cancel" });
+          }
+        }
+
+        gameOver && setGameOver(true);
+      };
+      app.ticker.add((delta) => {
+        gameState.character && gameLoop(delta, gameState.character);
+      });
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const gameSpeed = 2;
-  const gameLoop = (delta: number) => {
-    const { character, moveTarget, moving, gameOver } = gameState;
-    if (character && moveTarget && moving) {
-      if (isOutOfBound(moveTarget)) {
-        return null;
-      }
-      const result: TextureType = isCollideType(moveTarget);
-      const xDirection = moveTarget.x - character.x / CellSize >= 0 ? 1 : -1;
-      const yDirection = moveTarget.y - character.y / CellSize >= 0 ? 1 : -1;
-      const moveDone =
-        character.x === moveTarget.x * CellSize &&
-        character.y === moveTarget.y * CellSize;
-      console.log(result, moveTarget);
-      if (result === 0 || result === 3) {
-        if (
-          (xDirection === 1 && character.x + delta > moveTarget.x * CellSize) ||
-          (xDirection === -1 && character.x - delta < moveTarget.x * CellSize)
-        ) {
-          character.x = moveTarget.x * CellSize;
-          moveDone &&
-            dispatch &&
-            dispatch({
-              type: "move.stop",
-            });
-        } else {
-          character.x += delta * gameSpeed * xDirection;
-        }
-
-        if (
-          (yDirection === 1 && character.y + delta > moveTarget.y * CellSize) ||
-          (yDirection === -1 && character.y - delta < moveTarget.y * CellSize)
-        ) {
-          character.y = moveTarget.y * CellSize;
-          moveDone &&
-            dispatch &&
-            dispatch({
-              type: "move.stop",
-            });
-        } else {
-          character.y += delta * gameSpeed * yDirection;
-        }
-      } else {
-        dispatch && dispatch({ type: "move.cancel" });
-      }
-    }
-
-    gameOver && setGameOver(true);
-  };
 
   const reStartGame = () => {
     if (gameState.character) {
