@@ -155,55 +155,58 @@ export const Game = () => {
         const { moveTarget, moving, gameOver } = gameState;
         if (character && moveTarget && moving) {
           if (isOutOfBound(moveTarget)) {
-            return null;
-          }
-          const result: TextureType = isCollideType(moveTarget);
-          const xDirection =
-            moveTarget.x - character.x / CellSize >= 0 ? 1 : -1;
-          const yDirection =
-            moveTarget.y - character.y / CellSize >= 0 ? 1 : -1;
-          const moveDone =
-            character.x === moveTarget.x * CellSize &&
-            character.y === moveTarget.y * CellSize;
-
-          if (result === 0 || result === 3) {
-            if (
-              (xDirection === 1 &&
-                character.x + delta > moveTarget.x * CellSize) ||
-              (xDirection === -1 &&
-                character.x - delta < moveTarget.x * CellSize)
-            ) {
-              character.x = moveTarget.x * CellSize;
-              if (moveDone) {
-                dispatch &&
-                  dispatch({
-                    type: "move.stop",
-                  });
-                move("stop");
-              }
-            } else {
-              character.x += delta * gameSpeed * xDirection;
-            }
-
-            if (
-              (yDirection === 1 &&
-                character.y + delta > moveTarget.y * CellSize) ||
-              (yDirection === -1 &&
-                character.y - delta < moveTarget.y * CellSize)
-            ) {
-              character.y = moveTarget.y * CellSize;
-              if (moveDone) {
-                dispatch &&
-                  dispatch({
-                    type: "move.stop",
-                  });
-                move("stop");
-              }
-            } else {
-              character.y += delta * gameSpeed * yDirection;
-            }
-          } else {
             dispatch && dispatch({ type: "move.cancel" });
+            move("stop");
+          } else {
+            const result: TextureType = isCollideType(moveTarget);
+            const xDirection =
+              moveTarget.x - character.x / CellSize >= 0 ? 1 : -1;
+            const yDirection =
+              moveTarget.y - character.y / CellSize >= 0 ? 1 : -1;
+            const moveDone =
+              character.x === moveTarget.x * CellSize &&
+              character.y === moveTarget.y * CellSize;
+
+            if (result === 0 || result === 3) {
+              if (
+                (xDirection === 1 &&
+                  character.x + delta > moveTarget.x * CellSize) ||
+                (xDirection === -1 &&
+                  character.x - delta < moveTarget.x * CellSize)
+              ) {
+                character.x = moveTarget.x * CellSize;
+                if (moveDone) {
+                  dispatch &&
+                    dispatch({
+                      type: "move.stop",
+                    });
+                  move("stop");
+                }
+              } else {
+                character.x += delta * gameSpeed * xDirection;
+              }
+
+              if (
+                (yDirection === 1 &&
+                  character.y + delta > moveTarget.y * CellSize) ||
+                (yDirection === -1 &&
+                  character.y - delta < moveTarget.y * CellSize)
+              ) {
+                character.y = moveTarget.y * CellSize;
+                if (moveDone) {
+                  dispatch &&
+                    dispatch({
+                      type: "move.stop",
+                    });
+                  move("stop");
+                }
+              } else {
+                character.y += delta * gameSpeed * yDirection;
+              }
+            } else {
+              dispatch && dispatch({ type: "move.cancel" });
+              move("stop");
+            }
           }
         }
 

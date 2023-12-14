@@ -1,6 +1,4 @@
 import {
-  StageWidth,
-  StageHeight,
   CellSize,
   StageHeightCells,
   StageWidthCells,
@@ -12,9 +10,7 @@ import { Sprite, AnimatedSprite, Container } from "pixi.js";
 // 检测坐标系中的点是否越界
 export function isOutOfBound(point: Step) {
   const { x, y } = point;
-  return (
-    x < 0 || y < 0 || x > StageWidth - CellSize || y > StageHeight - CellSize
-  );
+  return x < 0 || y < 0 || x > StageWidthCells - 1 || y > StageHeightCells - 1;
 }
 
 // 两点碰撞检测
