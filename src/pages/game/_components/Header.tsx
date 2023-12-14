@@ -16,13 +16,13 @@ export const Header = () => {
         <w3m-button />
       </header>
       {selectedNetworkId !== String(L3.id) && (
-        <div className="wrap my-8">
+        <div className="my-4 wrap">
           <div role="alert" className="alert ">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              className="stroke-current shrink-0 w-6 h-6"
+              className="h-6 stroke-current w-6 shrink-0"
             >
               <path
                 strokeLinecap="round"
@@ -31,13 +31,13 @@ export const Header = () => {
                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               ></path>
             </svg>
-            <span>
+            <span className="text-sm">
               Your network is not connected to ZK Maze, Please switch to L3
               Network.
             </span>
             <div>
               <button
-                className="btn btn-primary"
+                className="btn btn-primary btn-sm"
                 onClick={() => switchNetwork?.(L3.id)}
               >
                 {isLoading ? "switching" : "switch network"}
@@ -45,10 +45,10 @@ export const Header = () => {
             </div>
           </div>
           {error && (
-            <div role="alert" className="alert alert-error mt-2">
+            <div role="alert" className="mt-2 alert alert-error">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="stroke-current shrink-0 h-6 w-6"
+                className="h-6 stroke-current w-6 shrink-0"
                 fill="none"
                 viewBox="0 0 24 24"
               >
@@ -59,7 +59,7 @@ export const Header = () => {
                   d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              {error.message}
+              <span className="text-sm">{error.message}</span>
             </div>
           )}
         </div>
