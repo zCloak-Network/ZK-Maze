@@ -256,7 +256,7 @@ export const Game = () => {
       <div className="my-8 wrap">
         <div
           ref={wrapRef}
-          className="flex relative flex-col items-center justify-center w-[640px] h-[640px] m-auto"
+          className="flex relative flex-col items-center justify-center w-[640px] h-[640px] m-auto rounded-2xl bg-neutral overflow-hidden"
         >
           {gameIsOver && <GameOver onExit={reStartGame} />}
           {loading && <div className="skeleton w-full h-full"></div>}
