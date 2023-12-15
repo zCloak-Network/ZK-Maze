@@ -7,3 +7,7 @@ export const upload = (params: FormData) => {
     },
   });
 };
+
+export const getMap = () => {
+  return instance.get(`/api/zkmaze/generate`);
+};

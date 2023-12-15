@@ -1,9 +1,5 @@
-export const StageWidthCells = 10;
-export const StageHeightCells = 10;
 export const Scale = 1;
 export const CellSize = 64 * Scale;
-export const StageWidth = StageWidthCells * CellSize;
-export const StageHeight = StageHeightCells * CellSize;
 
 export type Step = {
   x: number;

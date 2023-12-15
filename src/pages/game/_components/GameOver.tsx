@@ -162,7 +162,7 @@ export const GameOver = ({ onExit }: { onExit: () => void }) => {
   }, [step]);
 
   return (
-    <div className="flex flex-col h-full bg-[rgba(0,0,0,.3)] text-white w-full p-4 top-0 left-0 absolute justify-center items-center">
+    <div className="flex flex-col h-full text-white w-full p-4 top-0 left-0 absolute justify-center items-center">
       <div className="bg-base-100 text-base-content min-h-20 mockup-code">
         {SettlementProgress.slice(0, step + 1).map((log, index) => (
           <pre

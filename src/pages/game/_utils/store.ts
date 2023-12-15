@@ -1,5 +1,5 @@
 import { Sprite } from "pixi.js";
-import { Step, ExitPosition } from "./";
+import { Step, TextureType } from "./";
 
 export type StoreType = {
   character: Sprite | undefined;
@@ -7,6 +7,10 @@ export type StoreType = {
   path: Step[];
   moveTarget: Step | undefined;
   gameOver: boolean;
+  Map: TextureType[][];
+  StartPosition: Step;
+  ExitPosition: Step;
+  ShortestPath: number;
 };
 
 export type StoreDispatch = {
@@ -20,6 +24,10 @@ export const gameState: StoreType = {
   path: [],
   moveTarget: undefined,
   gameOver: false,
+  Map: [],
+  StartPosition: { x: 0, y: 0 },
+  ExitPosition: { x: 0, y: 0 },
+  ShortestPath: 0,
 };
 
 export function dispatch(action: StoreDispatch) {
@@ -30,6 +38,10 @@ export function dispatch(action: StoreDispatch) {
       if (action.param?.character && Array.isArray(action.param?.path)) {
         result.character = action.param.character as Sprite;
         result.path = action.param.path as Step[];
+        result.Map = action.param.Map as TextureType[][];
+        result.StartPosition = action.param.StartPosition as Step;
+        result.ExitPosition = action.param.ExitPosition as Step;
+        result.ShortestPath = action.param.ShortestPath as number;
       }
 
       break;
@@ -65,10 +77,10 @@ export function dispatch(action: StoreDispatch) {
     case "move.stop":
       result.moving = false;
       if (result.moveTarget) {
-        result.path = [...gameState.path, result.moveTarget as Step];
+        result.path = [...gameState.path, result.moveTarget ];
         result.gameOver =
-          result.moveTarget.x === ExitPosition.x &&
-          result.moveTarget.y === ExitPosition.y;
+          result.moveTarget.x === result.ExitPosition.x &&
+          result.moveTarget.y === result.ExitPosition.y;
       }
 
       result.moveTarget = undefined;

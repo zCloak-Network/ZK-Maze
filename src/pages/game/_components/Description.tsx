@@ -1,7 +1,7 @@
 export const Description = () => {
   return (
     <>
-      <div className="mockup-window border border-base-300 fixed right-4 bottom-4 hidden xl:block">
+      <div className="mockup-window border border-base-300 bg-white fixed right-4 bottom-4 hidden xl:block">
         <div className=" p-4 border-t border-base-300 w-[280px] text-sm">
           <h2 className="text-lg font-bold mb-2">How to play</h2>
           <p className="mb-2">
