@@ -154,11 +154,11 @@ export const Game = () => {
       const gameLoop = (delta: number, character: Container) => {
         const { moveTarget, moving, gameOver } = gameState;
         if (character && moveTarget && moving) {
-          if (isOutOfBound(moveTarget)) {
+          if (isOutOfBound(Map, moveTarget)) {
             dispatch && dispatch({ type: "move.cancel" });
             move("stop");
           } else {
-            const result: TextureType = isCollideType(moveTarget);
+            const result: TextureType = isCollideType(Map, moveTarget);
             const xDirection =
               moveTarget.x - character.x / CellSize >= 0 ? 1 : -1;
             const yDirection =

@@ -18,6 +18,8 @@ export const TypeTextureMap: Record<TextureType, string> = {
   4: "tile_0373.png", // 红树
 };
 
+export const gameSpeed = 4;
+
 export const Map: TextureType[][] = [
   [1, 0, 0, 0, 0, 0, 1, 0, 0, 0],
   [0, 1, 0, 1, 0, 0, 0, 0, 1, 3],

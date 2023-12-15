@@ -30,13 +30,11 @@ instance.interceptors.request.use(function (config) {
 // 响应后处理
 instance.interceptors.response.use(
   function (response) {
-    // if (response?.data?.code !== 200) {
-    //   throw new Error(response?.data?.msg);
-    // } else {
-    //   return response.data;
-    // }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return response.data;
+    if (response?.data?.code !== 200) {
+      throw new Error(response?.data?.msg);
+    } else {
+      return response.data;
+    }
   },
   function (error: { response: { status: unknown }; message: unknown }) {
     //原生错误对象

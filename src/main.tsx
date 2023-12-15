@@ -8,6 +8,7 @@ import ToastRoot from "./hooks/ctx/ToastRoot";
 const router = createBrowserRouter(rootRoute, {
   basename: import.meta.env.BASE_URL,
 });
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <WagmiRoot>
     <ToastRoot />

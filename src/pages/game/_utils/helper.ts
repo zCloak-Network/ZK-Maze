@@ -1,15 +1,10 @@
-import {
-  CellSize,
-  StageHeightCells,
-  StageWidthCells,
-  Map,
-  TextureType,
-  Step,
-} from "./config";
+import { CellSize, TextureType, Step, gameSpeed } from "./config";
 import { Sprite, AnimatedSprite, Container } from "pixi.js";
 // 检测坐标系中的点是否越界
-export function isOutOfBound(point: Step) {
+export function isOutOfBound(Map: TextureType[][], point: Step) {
   const { x, y } = point;
+  const StageHeightCells = Map.length;
+  const StageWidthCells = Map[0].length;
   return x < 0 || y < 0 || x > StageWidthCells - 1 || y > StageHeightCells - 1;
 }
 
@@ -26,11 +21,11 @@ export function isCollide(sprite1: Sprite, sprite2: Sprite) {
 }
 
 // 特定类型碰撞检测
-export function isCollideType(sprite1: Step) {
+export function isCollideType(Map: TextureType[][], sprite1: Step) {
   const { x, y } = sprite1;
   let result: TextureType = 0;
-  for (let i = 0; i < StageHeightCells; i++) {
-    for (let j = 0; j < StageWidthCells; j++) {
+  for (let i = 0; i < Map.length; i++) {
+    for (let j = 0; j < Map[0].length; j++) {
       if (Map[i][j] > 0) {
         if (x === j && y === i) {
           result = Map[i][j];
@@ -41,55 +36,6 @@ export function isCollideType(sprite1: Step) {
   }
   return result;
 }
-
-export const safeMove = (
-  point: Sprite,
-  direction: "left" | "right" | "up" | "down",
-  callback?: (result: TextureType, position: Step) => void
-) => {
-  const step = 1;
-  const { x, y } = point;
-  let newPosition = { x, y };
-  switch (direction) {
-    case "left":
-      newPosition = {
-        x: x - step * CellSize,
-        y,
-      };
-      break;
-    case "right":
-      newPosition = {
-        x: x + step * CellSize,
-        y,
-      };
-      break;
-    case "up":
-      newPosition = {
-        x,
-        y: y - step * CellSize,
-      };
-      break;
-    case "down":
-      newPosition = {
-        x,
-        y: y + step * CellSize,
-      };
-      break;
-    default:
-      break;
-  }
-
-  const result: TextureType = isCollideType(newPosition);
-
-  if (isOutOfBound(newPosition)) {
-    return null;
-  }
-
-  if (callback?.(result, newPosition)) {
-    point.x = newPosition.x;
-    point.y = newPosition.y;
-  }
-};
 
 // 遍历二维数组
 export const filterMapPoint = (
@@ -112,7 +58,6 @@ export const filterMapPoint = (
   return result;
 };
 
-export const gameSpeed = 2;
 export function Role(
   upAnimate: AnimatedSprite,
   downAnimate: AnimatedSprite,
@@ -215,3 +160,32 @@ export function Role(
     },
   };
 }
+
+export const generatePublicInput = (
+  Map: TextureType[][],
+  StartPosition: Step,
+  EndPosition: Step,
+  ShortestPathLength: number
+) => {
+  const rows = Map.length;
+  const cols = Map[0].length;
+  const result: number[] = [
+    rows,
+    cols,
+    StartPosition.x,
+    StartPosition.y,
+    EndPosition.x,
+    EndPosition.y,
+    ShortestPathLength,
+  ];
+  const ObstacleArray: Step[] = filterMapPoint(
+    Map,
+    (item) => item !== 0 && item !== 3
+  );
+  result.push(ObstacleArray.length);
+  ObstacleArray.forEach((point) => {
+    result.push(point.x, point.y);
+  });
+
+  return result.reverse().join(",");
+};
