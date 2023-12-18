@@ -188,13 +188,6 @@ export const Game = () => {
                     character.x - delta < moveTarget.x * CellSize)
                 ) {
                   character.x = moveTarget.x * CellSize;
-                  if (moveDone) {
-                    dispatch &&
-                      dispatch({
-                        type: "move.stop",
-                      });
-                    move("stop");
-                  }
                 } else {
                   character.x += delta * gameSpeed * xDirection;
                 }
@@ -206,19 +199,22 @@ export const Game = () => {
                     character.y - delta < moveTarget.y * CellSize)
                 ) {
                   character.y = moveTarget.y * CellSize;
-                  if (moveDone) {
-                    dispatch &&
-                      dispatch({
-                        type: "move.stop",
-                      });
-                    move("stop");
-                  }
                 } else {
                   character.y += delta * gameSpeed * yDirection;
+                }
+
+                if (moveDone) {
+                  dispatch &&
+                    dispatch({
+                      type: "move.stop",
+                    });
+                  move("stop");
+                  console.log(1111, moving);
                 }
               } else {
                 dispatch && dispatch({ type: "move.cancel" });
                 move("stop");
+                console.log(3333, "move.cancel");
               }
             }
           }

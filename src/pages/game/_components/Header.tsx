@@ -1,6 +1,8 @@
 import { useSwitchNetwork } from "wagmi";
-import { L3 } from "@/hooks/ctx/chain";
+import { L3, L3Dev } from "@/hooks/ctx/chain";
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
+
+const Chain = import.meta.env.MODE === "development" ? L3Dev : L3;
 
 export const Header = () => {
   const { selectedNetworkId } = useWeb3ModalState();
@@ -15,7 +17,7 @@ export const Header = () => {
         </div>
         <w3m-button />
       </header>
-      {selectedNetworkId != String(L3.id) && (
+      {selectedNetworkId != String(Chain.id) && (
         <div className="my-4 wrap">
           <div role="alert" className="alert ">
             <svg
@@ -33,12 +35,12 @@ export const Header = () => {
             </svg>
             <span className="text-sm">
               Your network({selectedNetworkId}) is not connected to ZK Maze,
-              Please switch to L3 Network.
+              Please switch Network.
             </span>
             <div>
               <button
                 className="btn btn-primary btn-sm"
-                onClick={() => switchNetwork?.(L3.id)}
+                onClick={() => switchNetwork?.(Chain.id)}
               >
                 {isLoading ? "switching" : "switch network"}
               </button>

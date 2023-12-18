@@ -1,4 +1,4 @@
-import { CellSize, TextureType, Step, gameSpeed } from "./config";
+import { CellSize, TextureType, Step, animationSpeed } from "./config";
 import { Sprite, AnimatedSprite, Container } from "pixi.js";
 // 检测坐标系中的点是否越界
 export function isOutOfBound(Map: TextureType[][], point: Step) {
@@ -75,72 +75,65 @@ export function Role(
   upAnimate.visible = false;
   upAnimate.x = 0;
   upAnimate.y = 0;
-  upAnimate.animationSpeed = gameSpeed / 10;
+  upAnimate.animationSpeed = animationSpeed;
   downAnimate.visible = false;
   downAnimate.x = 0;
   downAnimate.y = 0;
-  downAnimate.animationSpeed = gameSpeed / 10;
+  downAnimate.animationSpeed = animationSpeed;
   leftAnimate.visible = false;
   leftAnimate.x = 0;
   leftAnimate.y = 0;
-  leftAnimate.animationSpeed = gameSpeed / 10;
+  leftAnimate.animationSpeed = animationSpeed;
   rightAnimate.visible = true;
   rightAnimate.x = 0;
   rightAnimate.y = 0;
-  rightAnimate.animationSpeed = gameSpeed / 10;
+  rightAnimate.animationSpeed = animationSpeed;
 
   let currentDirection: "up" | "down" | "left" | "right" = "right";
 
   return {
     character: container,
     move: (direction: "up" | "down" | "left" | "right" | "stop") => {
+      if (direction !== "stop") {
+        currentDirection = direction;
+      }
+
       switch (direction) {
         case "up":
           upAnimate.visible = true;
           upAnimate.play();
           downAnimate.visible = false;
-          downAnimate.stop();
           leftAnimate.visible = false;
-          leftAnimate.stop();
           rightAnimate.visible = false;
-          rightAnimate.stop();
-          currentDirection = direction;
+
           break;
         case "down":
+          currentDirection = direction;
           upAnimate.visible = false;
-          upAnimate.stop();
           downAnimate.visible = true;
           downAnimate.play();
           leftAnimate.visible = false;
-          leftAnimate.stop();
           rightAnimate.visible = false;
-          rightAnimate.stop();
-          currentDirection = direction;
           break;
         case "left":
+          currentDirection = direction;
           upAnimate.visible = false;
-          upAnimate.stop();
           downAnimate.visible = false;
-          downAnimate.stop();
           leftAnimate.visible = true;
           leftAnimate.play();
           rightAnimate.visible = false;
-          rightAnimate.stop();
-          currentDirection = direction;
           break;
         case "right":
+          currentDirection = direction;
           upAnimate.visible = false;
-          upAnimate.stop();
           downAnimate.visible = false;
-          downAnimate.stop();
           leftAnimate.visible = false;
-          leftAnimate.stop();
           rightAnimate.visible = true;
           rightAnimate.play();
-          currentDirection = direction;
           break;
 
         case "stop":
+          console.log("stop", currentDirection);
           switch (currentDirection) {
             case "up":
               upAnimate.gotoAndStop(0);
