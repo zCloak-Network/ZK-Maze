@@ -2,8 +2,8 @@ import { Chain } from "wagmi";
 
 export const L3 = {
   id: 91751576100,
-  name: "Arbitrum L3",
-  network: "ArbitrumL3",
+  name: "Azeroth",
+  network: "Azeroth",
   nativeCurrency: {
     decimals: 18,
     name: "ETH",
@@ -14,14 +14,14 @@ export const L3 = {
     default: { http: ["https://nitro.zkid.xyz/"] },
   },
   blockExplorers: {
-    default: { name: "SnowTrace", url: "https://54.184.214.151:4000/" },
+    default: { name: "SnowTrace", url: "http://54.184.214.151:4000" },
   },
 } as const satisfies Chain;
 
 export const L3Dev = {
   id: 412346,
-  name: "Arbitrum L3 test",
-  network: "ArbitrumL3 Testnet",
+  name: "Azeroth test",
+  network: "Azeroth Testnet",
   nativeCurrency: {
     decimals: 18,
     name: "ETH",
@@ -32,6 +32,6 @@ export const L3Dev = {
     default: { http: ["https://nitro.zkid.xyz/"] },
   },
   blockExplorers: {
-    default: { name: "SnowTrace", url: "https://54.184.214.151:4000/" },
+    default: { name: "SnowTrace", url: "https://54.184.214.151:4000" },
   },
 } as const satisfies Chain;
