@@ -101,3 +101,26 @@ dropw
 mem_load.108
 end
 `;
+
+export const ABI = [
+  {
+    type: "function",
+    stateMutability: "view",
+    outputs: [
+      { type: "uint8", name: "", internalType: "enum zkMaze.Achievement" },
+    ],
+    name: "checkUserAchievement",
+    inputs: [{ type: "address", name: "userAddr", internalType: "address" }],
+  },
+  {
+    type: "function",
+    stateMutability: "nonpayable",
+    outputs: [],
+    name: "uploadZKSolution",
+    inputs: [
+      { type: "string", name: "programHash", internalType: "string" },
+      { type: "string", name: "publicInput", internalType: "string" },
+      { type: "string", name: "arweaveLink", internalType: "string" },
+    ],
+  },
+];

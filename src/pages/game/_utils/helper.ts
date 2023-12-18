@@ -133,7 +133,6 @@ export function Role(
           break;
 
         case "stop":
-          console.log("stop", currentDirection);
           switch (currentDirection) {
             case "up":
               upAnimate.gotoAndStop(0);

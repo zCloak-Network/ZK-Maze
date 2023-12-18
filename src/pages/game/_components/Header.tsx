@@ -1,22 +1,96 @@
-import { useSwitchNetwork } from "wagmi";
+import { useImperativeHandle, forwardRef } from "react";
+import { useSwitchNetwork, useContractRead, useAccount } from "wagmi";
 import { L3, L3Dev } from "@/hooks/ctx/chain";
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
-
+import { ABI } from "@/constants";
 const Chain = import.meta.env.MODE === "development" ? L3Dev : L3;
+const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
 
-export const Header = () => {
+// eslint-disable-next-line react/display-name
+const Header = forwardRef((_props, ref) => {
   const { selectedNetworkId } = useWeb3ModalState();
   const { error, isLoading, switchNetwork } = useSwitchNetwork();
+  const { address } = useAccount();
+  const {
+    data,
+    isLoading: isContractLoading,
+    refetch,
+  } = useContractRead({
+    address: ContractAddress,
+    abi: ABI,
+    functionName: "checkUserAchievement",
+    args: [address],
+    onSuccess: (data) => {
+      console.log("useContractRead", data);
+    },
+  });
+
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        refetch,
+      };
+    },
+    []
+  );
 
   return (
     <>
-      <header className="flex shadow p-4 items-center">
+      <header className="flex shadow p-4 items-center mb-8">
         <img src="/Tiles/tile_0051.png" className="w-8" />
         <div className="font-semibold flex-1 text-primary text-2xl">
           ZK Maze
         </div>
         <w3m-button />
       </header>
+      <div className="flex flex-col items-center">
+        <div className="stats border border-grey cursor-default">
+          {isContractLoading ? (
+            <span>loading</span>
+          ) : data ? (
+            <div className="stat">
+              <div className="stat-figure text-primary">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  className="inline-block w-8 h-8 stroke-current"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  ></path>
+                </svg>
+              </div>
+              <div className="stat-title">Get Achievements</div>
+              <div className="stat-value text-primary">Success</div>
+            </div>
+          ) : (
+            <div className="stat">
+              <div className="stat-figure text-secondary">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  className="inline-block w-8 h-8 stroke-current"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  ></path>
+                </svg>
+              </div>
+              <div className="stat-title">Get Achievements</div>
+              <div className="stat-value text-secondary">Failure</div>
+            </div>
+          )}
+        </div>
+      </div>
       {selectedNetworkId != String(Chain.id) && (
         <div className="my-4 wrap">
           <div role="alert" className="alert ">
@@ -40,6 +114,7 @@ export const Header = () => {
             <div>
               <button
                 className="btn btn-primary btn-sm"
+                disabled={isLoading}
                 onClick={() => switchNetwork?.(Chain.id)}
               >
                 {isLoading ? "switching" : "switch network"}
@@ -68,4 +143,6 @@ export const Header = () => {
       )}
     </>
   );
-};
+});
+
+export default Header;

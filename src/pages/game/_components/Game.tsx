@@ -26,13 +26,14 @@ import {
 // import play from "../_scripts/play";
 import { GameOver } from "./GameOver";
 import { gameState, dispatch } from "../_utils";
-import { Header } from "./Header";
+import Header from "./Header";
 import { Tip } from "./Tip";
 import { Description } from "./Description";
 import { getMap } from "@/api/zkp";
 
 export const Game = () => {
   const wrapRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const { bindKey } = keystrokes as unknown as Keystrokes;
   const [gameIsOver, setGameOver] = useState(false);
@@ -164,8 +165,8 @@ export const Game = () => {
         bindKey("a", handleKeyLeft);
 
         //Start the game loop
-        const gameLoop = (delta: number, character: Container) => {
-          const { moveTarget, moving, gameOver } = gameState;
+        const gameLoop = (delta: number) => {
+          const { moveTarget, moving, gameOver, character } = gameState;
           if (character && moveTarget && moving) {
             if (isOutOfBound(Map, moveTarget)) {
               dispatch && dispatch({ type: "move.cancel" });
@@ -173,9 +174,9 @@ export const Game = () => {
             } else {
               const result: TextureType = isCollideType(Map, moveTarget);
               const xDirection =
-                moveTarget.x - character.x / CellSize >= 0 ? 1 : -1;
+                moveTarget.x * CellSize - character.x >= 0 ? 1 : -1;
               const yDirection =
-                moveTarget.y - character.y / CellSize >= 0 ? 1 : -1;
+                moveTarget.y * CellSize - character.y >= 0 ? 1 : -1;
               const moveDone =
                 character.x === moveTarget.x * CellSize &&
                 character.y === moveTarget.y * CellSize;
@@ -209,21 +210,18 @@ export const Game = () => {
                       type: "move.stop",
                     });
                   move("stop");
-                  console.log(1111, moving);
                 }
               } else {
                 dispatch && dispatch({ type: "move.cancel" });
                 move("stop");
-                console.log(3333, "move.cancel");
               }
             }
           }
 
           gameOver && setGameOver(true);
         };
-        app.ticker.add((delta) => {
-          gameState.character && gameLoop(delta, gameState.character);
-        });
+
+        app.ticker.add(gameLoop);
       }
     );
 
@@ -247,14 +245,20 @@ export const Game = () => {
 
   return (
     <div>
-      <Header />
+      <Header ref={headerRef} />
 
       <div className="my-8 wrap">
         <div
           ref={wrapRef}
           className="flex relative flex-col items-center justify-center w-[640px] h-[640px] m-auto rounded-2xl bg-neutral overflow-hidden"
         >
-          {gameIsOver && <GameOver onExit={reStartGame} />}
+          {gameIsOver && (
+            <GameOver
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+              onRefresh={() => headerRef && headerRef.current?.refetch()}
+              onExit={reStartGame}
+            />
+          )}
           {loading && <div className="skeleton w-full h-full"></div>}
         </div>
       </div>

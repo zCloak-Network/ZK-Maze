@@ -10,17 +10,20 @@ export const L3 = {
     symbol: "ETH",
   },
   rpcUrls: {
-    public: { http: ["https://nitro.zkid.xyz/"] },
-    default: { http: ["https://nitro.zkid.xyz/"] },
+    public: { http: ["https://nitro.zkid.app/"] },
+    default: { http: ["https://nitro.zkid.app/"] },
   },
   blockExplorers: {
-    default: { name: "SnowTrace", url: "http://54.184.214.151:4000" },
+    default: {
+      name: "AzerothExplorer",
+      url: "https://nitro-explorer.zkid.app",
+    },
   },
 } as const satisfies Chain;
 
 export const L3Dev = {
   id: 412346,
-  name: "Azeroth test",
+  name: "Azeroth Test",
   network: "Azeroth Testnet",
   nativeCurrency: {
     decimals: 18,
@@ -32,6 +35,9 @@ export const L3Dev = {
     default: { http: ["https://nitro.zkid.xyz/"] },
   },
   blockExplorers: {
-    default: { name: "SnowTrace", url: "https://54.184.214.151:4000" },
+    default: {
+      name: "AzerothExplorer",
+      url: "https://nitro-explorer.zkid.xyz",
+    },
   },
 } as const satisfies Chain;

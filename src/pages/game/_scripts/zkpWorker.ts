@@ -6,24 +6,25 @@ import {
 import { initCrypto } from "@zcloak/crypto";
 // todo: sdk can not work in web workder
 export const onmessage = function (e: {
-  data: [any, any, any];
-  postMessage: any;
+  data: [string, string, string];
+  postMessage: (data: { data: string; programHash?: string }) => void;
 }) {
   console.log("Worker: Message received from main script");
   const [program, publicInput, secretInput] = e.data;
   if (program && publicInput && secretInput) {
     try {
-      initCrypto().then(() => {
-        initMidenWasm().then(() => {
+      void initCrypto().then(() => {
+        void initMidenWasm().then(() => {
           const zkpResult = executeZkProgram(program, publicInput, secretInput);
           const programHash = generateProgramHash(program);
           e.postMessage({ data: zkpResult, programHash });
         });
       });
     } catch (err) {
-      e.postMessage(err);
+      console.warn(err);
+      e.postMessage({ data: "" });
     }
   } else {
-    e.postMessage({ data: null });
+    e.postMessage({ data: "" });
   }
 };

@@ -1,6 +1,6 @@
 export const themeColor = {
   primary: "#5edfac",
-  secondary: "#C8C7FA",
+  secondary: "#dc8652",
   accent: "#37cdbe",
   neutral: "#3d4451",
   warning: "#ffbe00",

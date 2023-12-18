@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { useState, useEffect } from "react";
 import FileSaver from "file-saver";
 import {
@@ -8,11 +11,19 @@ import {
   generatePublicInput,
 } from "../_utils";
 import { gameState } from "../_utils";
-import { program } from "../_scripts/program";
+import { PROGRAM_STRING, ABI } from "@/constants";
 import * as myWorker from "../_scripts/zkpWorker.ts";
 import { upload } from "@/api/zkp.ts";
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
+const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
 
-export const GameOver = ({ onExit }: { onExit: () => void }) => {
+export const GameOver = ({
+  onRefresh,
+  onExit,
+}: {
+  onRefresh: () => void;
+  onExit: () => void;
+}) => {
   const { path } = gameState;
   const [step, setStep] = useState(0);
   const [result, setResult] = useState<boolean | undefined>();
@@ -22,6 +33,14 @@ export const GameOver = ({ onExit }: { onExit: () => void }) => {
   const [programHash, setProgramHash] = useState<string | undefined>();
   const [transactionHash, setTransactionHash] = useState<string | undefined>();
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
+
+  const { config } = usePrepareContractWrite({
+    address: ContractAddress,
+    abi: ABI,
+    functionName: "uploadZKSolution",
+    args: [programHash, publicInput, zkpURL],
+  });
+  const { writeAsync } = useContractWrite(config);
 
   const SettlementProgress = [
     {
@@ -66,8 +85,8 @@ export const GameOver = ({ onExit }: { onExit: () => void }) => {
           setPublicInput(publicInput);
           console.log("publicInput", publicInput, "secretInput", secretInput);
           myWorker.onmessage({
-            data: [program, publicInput, secretInput],
-            postMessage: (e: { data: any; programHash: string }) => {
+            data: [PROGRAM_STRING, publicInput, secretInput],
+            postMessage: (e) => {
               const _zkpResult = e.data;
               setProgramHash(e.programHash);
               if (_zkpResult) {
@@ -116,12 +135,31 @@ export const GameOver = ({ onExit }: { onExit: () => void }) => {
       content: "3/4 ZK verification",
       class: "text-success",
       run: () => {
-        return new Promise((resolve) => {
-          console.log(programHash, publicInput, zkpURL);
-          setTimeout(() => {
-            setTransactionHash("sfsdfsfsfsfs");
-            resolve(true);
-          }, 1000);
+        return new Promise((resolve, reject) => {
+          console.log(
+            ContractAddress,
+            ABI,
+            programHash,
+            publicInput,
+            zkpURL,
+            config,
+            writeAsync
+          );
+          if (typeof writeAsync === "function") {
+            void writeAsync().then((res) => {
+              console.log("writeAsync", res);
+              setTransactionHash(res.hash);
+              onRefresh?.();
+              resolve(true);
+            });
+          } else {
+            reject("contract init error");
+          }
+
+          // setTimeout(() => {
+          //   setTransactionHash("sfsdfsfsfsfs");
+          //   resolve(true);
+          // }, 1000);
         });
       },
     },

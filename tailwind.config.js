@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-import { themeColor } from "./src/config";
+import { themeColor } from "./src/constants";
 
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
