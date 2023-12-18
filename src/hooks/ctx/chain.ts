@@ -20,8 +20,8 @@ export const L3 = {
 
 export const L3Dev = {
   id: 412346,
-  name: "Arbitrum L3",
-  network: "ArbitrumL3",
+  name: "Arbitrum L3 test",
+  network: "ArbitrumL3 Testnet",
   nativeCurrency: {
     decimals: 18,
     name: "ETH",
