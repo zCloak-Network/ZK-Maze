@@ -30,7 +30,6 @@ import Header from "./Header";
 import { Tip } from "./Tip";
 import { Description } from "./Description";
 import { getMap } from "@/api/zkp";
-import { useDispatchStore } from "@/store";
 
 export const Game = () => {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -38,7 +37,6 @@ export const Game = () => {
   const [loading, setLoading] = useState(true);
   const { bindKey } = keystrokes as unknown as Keystrokes;
   const [gameIsOver, setGameOver] = useState(false);
-  const dispatchStore = useDispatchStore();
 
   useEffect(() => {
     void Promise.all([getMap(), Assets.load("/spritesheet.json")]).then(
@@ -47,11 +45,7 @@ export const Game = () => {
         if (!mapInfo.data) {
           return console.error("get map fail");
         }
-        dispatchStore &&
-          dispatchStore({
-            type: "map",
-            param: mapInfo.data,
-          });
+
         const { Map, StartPosition, ExitPosition, ShortestPathLength } =
           mapInfo.data;
         const StageHeightCells = Map.length;
@@ -91,32 +85,36 @@ export const Game = () => {
         }
         // character
         const TextureRight = new AnimatedSprite([
-          sheet.textures["tile_0026.png"],
-          sheet.textures["tile_0053.png"],
-          sheet.textures["tile_0080.png"],
+          sheet.textures["right-0.png"],
+          sheet.textures["right-1.png"],
+          sheet.textures["right-0.png"],
+          sheet.textures["right-2.png"],
         ]);
         const TextureDown = new AnimatedSprite([
-          sheet.textures["tile_0024.png"],
-          sheet.textures["tile_0051.png"],
-          sheet.textures["tile_0078.png"],
+          sheet.textures["down-0.png"],
+          sheet.textures["down-1.png"],
+          sheet.textures["down-0.png"],
+          sheet.textures["down-2.png"],
         ]);
         const TextureLeft = new AnimatedSprite([
-          sheet.textures["tile_0023.png"],
-          sheet.textures["tile_0050.png"],
-          sheet.textures["tile_0077.png"],
+          sheet.textures["left-0.png"],
+          sheet.textures["left-1.png"],
+          sheet.textures["left-0.png"],
+          sheet.textures["left-2.png"],
         ]);
         const TextureUp = new AnimatedSprite([
-          sheet.textures["tile_0025.png"],
-          sheet.textures["tile_0052.png"],
-          sheet.textures["tile_0079.png"],
+          sheet.textures["up-0.png"],
+          sheet.textures["up-1.png"],
+          sheet.textures["up-0.png"],
+          sheet.textures["up-2.png"],
         ]);
 
-        const { character, move } = Role(
+        const { character, move } = Role([
           TextureUp,
           TextureDown,
           TextureLeft,
-          TextureRight
-        );
+          TextureRight,
+        ]);
 
         character.x = StartPosition.x * CellSize;
         character.y = StartPosition.y * CellSize;

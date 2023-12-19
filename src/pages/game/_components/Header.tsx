@@ -45,46 +45,51 @@ const Header = forwardRef((_props, ref) => {
 
   return (
     <>
-      <header className="flex shadow px-4 py-6 items-center mb-8 relative">
+      <header className="flex shadow px-4 py-6 items-center mb-12 relative">
         <img src="/Tiles/tile_0051.png" className="w-8" />
         <div className="font-semibold flex-1 text-primary text-2xl">
           ZK Maze
         </div>
         <div className="flex justify-center items-center absolute left-0 w-full h-full top-0">
-          <div className="stats cursor-default">
-            {isContractLoading ? (
-              <span>loading</span>
-            ) : (
-              <div className="stat py-2">
-                <div
-                  className={
-                    "stat-figure text-" + RESULT_COLOR_MAP[Number(data)] || ""
-                  }
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    className="inline-block w-8 h-8 stroke-current"
+          <div
+            className="tooltip tooltip-bottom tooltip-accent"
+            data-tip="NotDone < Done < Normal < Excellent"
+          >
+            <div className="stats cursor-pointer">
+              {isContractLoading ? (
+                <span>loading</span>
+              ) : (
+                <div className="stat py-2">
+                  <div
+                    className={
+                      "stat-figure text-" + RESULT_COLOR_MAP[Number(data)] || ""
+                    }
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    ></path>
-                  </svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      className="inline-block w-8 h-8 stroke-current"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <div className="stat-title">Your Achievement</div>
+                  <div
+                    className={
+                      "stat-value text-" + RESULT_COLOR_MAP[Number(data)] || ""
+                    }
+                  >
+                    {RESULT_MAP[Number(data)] || "--"}
+                  </div>
                 </div>
-                <div className="stat-title">Your Achievements</div>
-                <div
-                  className={
-                    "stat-value text-" + RESULT_COLOR_MAP[Number(data)] || ""
-                  }
-                >
-                  {RESULT_MAP[Number(data)] || "--"}
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
         <w3m-button />

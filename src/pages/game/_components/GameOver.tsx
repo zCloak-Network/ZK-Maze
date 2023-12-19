@@ -28,7 +28,7 @@ export const GameOver = ({
   const [programHash, setProgramHash] = useState<string | undefined>();
   const [transactionHash, setTransactionHash] = useState<string | undefined>();
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
-  const { gameResult, mapInfo } = useStateStore();
+  const { gameResult } = useStateStore();
 
   const { writeAsync } = useContractWrite({
     address: ContractAddress,
@@ -68,7 +68,7 @@ export const GameOver = ({
       run: () => {
         return new Promise((resolve, reject) => {
           const { StartPosition, ExitPosition, ShortestPathLength, Map } =
-            mapInfo;
+            gameState;
           console.log(
             "generate zkp",
             StartPosition,

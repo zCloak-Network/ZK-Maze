@@ -127,5 +127,3 @@ export const ABI = [
     ],
   },
 ];
-
-export const RESULT_MAP = ["NotDone", "Done", "Normal", "Excellent"];

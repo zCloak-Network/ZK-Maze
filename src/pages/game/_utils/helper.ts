@@ -59,37 +59,37 @@ export const filterMapPoint = (
 };
 
 export function Role(
-  upAnimate: AnimatedSprite,
-  downAnimate: AnimatedSprite,
-  leftAnimate: AnimatedSprite,
-  rightAnimate: AnimatedSprite
+  params: [
+    AnimatedSprite,
+    AnimatedSprite,
+    AnimatedSprite,
+    AnimatedSprite
+    // AnimatedSprite,
+    // AnimatedSprite,
+    // AnimatedSprite,
+    // AnimatedSprite
+  ]
 ) {
+  const [upAnimate, downAnimate, leftAnimate, rightAnimate] = params;
   const container = new Container();
   container.width = CellSize;
   container.height = CellSize;
 
-  container.addChild(upAnimate);
-  container.addChild(downAnimate);
-  container.addChild(leftAnimate);
-  container.addChild(rightAnimate);
-  upAnimate.visible = false;
-  upAnimate.x = 0;
-  upAnimate.y = 0;
-  upAnimate.animationSpeed = animationSpeed;
-  downAnimate.visible = false;
-  downAnimate.x = 0;
-  downAnimate.y = 0;
-  downAnimate.animationSpeed = animationSpeed;
-  leftAnimate.visible = false;
-  leftAnimate.x = 0;
-  leftAnimate.y = 0;
-  leftAnimate.animationSpeed = animationSpeed;
-  rightAnimate.visible = true;
-  rightAnimate.x = 0;
-  rightAnimate.y = 0;
-  rightAnimate.animationSpeed = animationSpeed;
-
   let currentDirection: "up" | "down" | "left" | "right" = "right";
+
+  const directionIndexMap = {
+    up: [0],
+    down: [1],
+    left: [2],
+    right: [3],
+  };
+  params.forEach((item, index) => {
+    item.visible = directionIndexMap[currentDirection].includes(index);
+    item.position.x = 0;
+    item.position.y = 0;
+    item.animationSpeed = animationSpeed;
+    container.addChild(item);
+  });
 
   return {
     character: container,
@@ -101,7 +101,7 @@ export function Role(
       switch (direction) {
         case "up":
           upAnimate.visible = true;
-          upAnimate.play();
+          upAnimate.gotoAndPlay(1);
           downAnimate.visible = false;
           leftAnimate.visible = false;
           rightAnimate.visible = false;
@@ -111,7 +111,7 @@ export function Role(
           currentDirection = direction;
           upAnimate.visible = false;
           downAnimate.visible = true;
-          downAnimate.play();
+          downAnimate.gotoAndPlay(1);
           leftAnimate.visible = false;
           rightAnimate.visible = false;
           break;
@@ -120,7 +120,7 @@ export function Role(
           upAnimate.visible = false;
           downAnimate.visible = false;
           leftAnimate.visible = true;
-          leftAnimate.play();
+          leftAnimate.gotoAndPlay(1);
           rightAnimate.visible = false;
           break;
         case "right":
@@ -129,7 +129,7 @@ export function Role(
           downAnimate.visible = false;
           leftAnimate.visible = false;
           rightAnimate.visible = true;
-          rightAnimate.play();
+          rightAnimate.gotoAndPlay(1);
           break;
 
         case "stop":

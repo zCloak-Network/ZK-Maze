@@ -15,7 +15,7 @@ export const TypeTextureMap: Record<TextureType, string> = {
 };
 
 export const gameSpeed = 2;
-export const animationSpeed = 0.3;
+export const animationSpeed = 0.2;
 
 export const Map: TextureType[][] = [
   [1, 0, 0, 0, 0, 0, 1, 0, 0, 0],
