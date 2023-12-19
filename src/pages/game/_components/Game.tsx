@@ -34,7 +34,7 @@ import { useDispatchStore } from "@/store";
 
 export const Game = () => {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef(null);
+  const headerRef = useRef<{ refetch: () => void }>(null);
   const [loading, setLoading] = useState(true);
   const { bindKey } = keystrokes as unknown as Keystrokes;
   const [gameIsOver, setGameOver] = useState(false);
@@ -260,8 +260,7 @@ export const Game = () => {
         >
           {gameIsOver && (
             <GameOver
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
-              onRefresh={() => headerRef && headerRef.current?.refetch()}
+              onRefresh={() => headerRef && headerRef.current?.refetch?.()}
               onExit={reStartGame}
             />
           )}
