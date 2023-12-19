@@ -85,7 +85,7 @@ exec.store_maze_info
 adv_push.2
 exec.check_start_point
 padw
-mem_loadw.103 push.0 mem_store.108 mem_load.107
+mem_loadw.103 push.1 mem_store.108 mem_load.107
 while.true
 exec.read_new_step exec.check_row_and_column exec.check_step_not_on_wall exec.check_step_consecutive exec.check_step_is_end dup.0 mem_store.109 mem_load.107 not or not
 mem_load.108 add.1 mem_store.108
