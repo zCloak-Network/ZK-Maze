@@ -90,7 +90,7 @@ const Header = forwardRef((_props, ref) => {
         <div className="flex justify-center items-center absolute left-0 w-full h-full top-0">
           <div
             className="tooltip tooltip-bottom tooltip-accent"
-            data-tip="NotDone < Done < Normal < Excellent"
+            data-tip="Fail < Done < Excellent"
           >
             <div className="stats cursor-pointer">
               {isContractLoading ? (
