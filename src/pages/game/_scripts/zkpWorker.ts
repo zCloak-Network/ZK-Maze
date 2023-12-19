@@ -15,13 +15,29 @@ export const onmessage = function (e: {
     try {
       void initCrypto().then(() => {
         void initMidenWasm().then(() => {
-          const zkpResult = executeZkProgram(program, publicInput, secretInput);
-          const programHash = generateProgramHash(program);
-          e.postMessage({ data: zkpResult, programHash });
+          try {
+            const zkpResult = executeZkProgram(
+              program,
+              publicInput,
+              secretInput
+            );
+            const programHash = generateProgramHash(program);
+            e.postMessage({ data: zkpResult, programHash });
+          } catch (err) {
+            console.warn(
+              err,
+              "with params:",
+              "publicInput=",
+              publicInput,
+              "secretInput=",
+              secretInput
+            );
+            e.postMessage({ data: "" });
+          }
         });
       });
     } catch (err) {
-      console.warn(err);
+      console.warn(2, err);
       e.postMessage({ data: "" });
     }
   } else {

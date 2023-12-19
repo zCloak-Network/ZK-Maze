@@ -18,7 +18,6 @@ end
 drop drop
 end
 
-
 proc.check_start_point
 swap
 padw
@@ -28,12 +27,9 @@ movdn.8 dropw dropw
 mem_store.107
 end
 
-
 proc.read_new_step
 adv_push.2 push.0.0 movup.2 movup.3
 end
-
-
 
 proc.check_step_consecutive
 movup.4
@@ -58,8 +54,6 @@ end
 movup.3 add eq.1 mem_load.107 and mem_store.107 movup.6 movup.7 dropw
 end
 
-
-
 proc.check_absolute_value
 dup.1 dup.1 dup.1 dup.1 gt
 if.true
@@ -68,7 +62,6 @@ else
 swap sub
 end
 end
-
 
 proc.check_step_not_on_wall
 push.1 mem_load.106 dup.0 push.1 gte
@@ -94,11 +87,21 @@ exec.check_start_point
 padw
 mem_loadw.103 push.0 mem_store.108 mem_load.107
 while.true
-exec.read_new_step exec.check_row_and_column exec.check_step_not_on_wall exec.check_step_consecutive exec.check_step_is_end mem_load.107 not or not
+exec.read_new_step exec.check_row_and_column exec.check_step_not_on_wall exec.check_step_consecutive exec.check_step_is_end dup.0 mem_store.109 mem_load.107 not or not
 mem_load.108 add.1 mem_store.108
 end
 dropw
-mem_load.108
+
+mem_load.109 mem_load.107
+and
+assert
+mem_load.108 mem_load.105 sub
+eq.0
+if.true
+  push.1
+else
+  push.2
+end
 end
 `;
 
@@ -124,3 +127,5 @@ export const ABI = [
     ],
   },
 ];
+
+export const RESULT_MAP = ["NotDone", "Done", "Normal", "Excellent"];

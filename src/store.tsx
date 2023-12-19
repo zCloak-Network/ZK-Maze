@@ -1,70 +1,37 @@
 import React, { createContext, useReducer, useContext } from "react";
-import { Sprite } from "pixi.js";
-import { Step } from "./pages/game/_utils";
+import { TextureType, Step } from "./pages/game/_utils";
+
+type mapInfo = {
+  Map: TextureType[][];
+  StartPosition: Step;
+  ExitPosition: Step;
+  ShortestPathLength: number;
+};
 
 export type StoreType = {
-  character: Sprite | undefined;
-  moving: boolean;
-  path: Step[];
-  moveTarget: Step | undefined;
+  mapInfo: mapInfo;
+  gameResult: number;
 };
 
 export type StoreDispatch = {
   type: string;
-  param?: Record<string, unknown>;
+  param?: unknown;
 };
 
 const initialState: StoreType = {
-  character: undefined,
-  moving: false,
-  path: [],
-  moveTarget: undefined,
+  mapInfo: {} as mapInfo,
+  gameResult: 0,
 };
 
 function reducer(state: StoreType, action: StoreDispatch) {
   const result: StoreType = { ...state };
 
   switch (action.type) {
-    case "init":
-      if (action.param?.character && Array.isArray(action.param?.path)) {
-        result.character = action.param.character as Sprite;
-        result.path = action.param.path as Step[];
-      }
-
+    case "update":
+      result.gameResult = action.param as number;
       break;
-    case "move.left":
-      result.moving = true;
-      result.moveTarget = {
-        x: state.path[state.path.length - 1].x - 1,
-        y: state.path[state.path.length - 1].y,
-      };
-      break;
-    case "move.right":
-      result.moving = true;
-      result.moveTarget = {
-        x: state.path[state.path.length - 1].x + 1,
-        y: state.path[state.path.length - 1].y,
-      };
-      break;
-    case "move.up":
-      result.moving = true;
-      result.moveTarget = {
-        x: state.path[state.path.length - 1].x,
-        y: state.path[state.path.length - 1].y - 1,
-      };
-      break;
-    case "move.down":
-      result.moving = true;
-      result.moveTarget = {
-        x: state.path[state.path.length - 1].x,
-        y: state.path[state.path.length - 1].y + 1,
-      };
-      break;
-
-    case "move.stop":
-      result.moving = false;
-      result.moveTarget = undefined;
-      break;
+    case "map":
+      result.mapInfo = action.param as mapInfo;
       break;
 
     default:

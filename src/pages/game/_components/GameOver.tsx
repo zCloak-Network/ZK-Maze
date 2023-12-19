@@ -3,18 +3,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { useState, useEffect } from "react";
 import FileSaver from "file-saver";
-import {
-  StartPosition,
-  ExitPosition,
-  ShortestPathLength,
-  Map,
-  generatePublicInput,
-} from "../_utils";
-import { gameState } from "../_utils";
-import { PROGRAM_STRING, ABI } from "@/constants";
+import { generatePublicInput, gameState } from "../_utils";
+import { PROGRAM_STRING, ABI, RESULT_MAP, RESULT_COLOR_MAP } from "@/constants";
 import * as myWorker from "../_scripts/zkpWorker.ts";
 import { upload } from "@/api/zkp.ts";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { useContractWrite } from "wagmi";
+import { Azeroth } from "@/hooks/ctx/chain";
+import { useStateStore } from "@/store";
+
 const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
 
 export const GameOver = ({
@@ -26,21 +22,20 @@ export const GameOver = ({
 }) => {
   const { path } = gameState;
   const [step, setStep] = useState(0);
-  const [result, setResult] = useState<boolean | undefined>();
   const [zkpResult, setZkpResult] = useState<string | undefined>();
   const [publicInput, setPublicInput] = useState<string | undefined>();
   const [zkpURL, setZkpURL] = useState<string | undefined>();
   const [programHash, setProgramHash] = useState<string | undefined>();
   const [transactionHash, setTransactionHash] = useState<string | undefined>();
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
+  const { gameResult, mapInfo } = useStateStore();
 
-  const { config } = usePrepareContractWrite({
+  const { writeAsync } = useContractWrite({
     address: ContractAddress,
     abi: ABI,
     functionName: "uploadZKSolution",
-    args: [programHash, publicInput, zkpURL],
+    chainId: Azeroth.id,
   });
-  const { writeAsync } = useContractWrite(config);
 
   const SettlementProgress = [
     {
@@ -72,6 +67,14 @@ export const GameOver = ({
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
+          const { StartPosition, ExitPosition, ShortestPathLength, Map } =
+            mapInfo;
+          console.log(
+            "generate zkp",
+            StartPosition,
+            ExitPosition,
+            ShortestPathLength
+          );
           const publicInput = generatePublicInput(
             Map,
             StartPosition,
@@ -88,8 +91,8 @@ export const GameOver = ({
             data: [PROGRAM_STRING, publicInput, secretInput],
             postMessage: (e) => {
               const _zkpResult = e.data;
-              setProgramHash(e.programHash);
-              if (_zkpResult) {
+              if (_zkpResult && e.programHash) {
+                setProgramHash(e.programHash);
                 setZkpResult(_zkpResult);
                 resolve(true);
               } else {
@@ -136,30 +139,24 @@ export const GameOver = ({
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
-          console.log(
-            ContractAddress,
-            ABI,
-            programHash,
-            publicInput,
-            zkpURL,
-            config,
-            writeAsync
-          );
           if (typeof writeAsync === "function") {
-            void writeAsync().then((res) => {
-              console.log("writeAsync", res);
-              setTransactionHash(res.hash);
-              onRefresh?.();
-              resolve(true);
-            });
+            void writeAsync({
+              args: [programHash, publicInput, zkpURL],
+            })
+              .then((res) => {
+                console.log("writeAsync", res);
+                if (res.hash) {
+                  setTransactionHash(res.hash);
+                  onRefresh?.();
+                  resolve(true);
+                } else {
+                  reject("contract fetch error");
+                }
+              })
+              .catch(reject);
           } else {
             reject("contract init error");
           }
-
-          // setTimeout(() => {
-          //   setTransactionHash("sfsdfsfsfsfs");
-          //   resolve(true);
-          // }, 1000);
         });
       },
     },
@@ -170,9 +167,6 @@ export const GameOver = ({
       run: () => {
         return new Promise((resolve) => {
           setTimeout(() => {
-            // todo
-            console.log("get result");
-            setResult(true);
             resolve(true);
           }, 100);
         });
@@ -183,7 +177,6 @@ export const GameOver = ({
   const SettlementOver = step >= SettlementProgress.length;
 
   useEffect(() => {
-    console.log(SettlementOver, step);
     if (!SettlementOver) {
       void SettlementProgress[step]
         .run?.()
@@ -214,14 +207,13 @@ export const GameOver = ({
             <code>{log.content}</code>
           </pre>
         ))}
-        {result === true && (
-          <pre data-prefix=">" className="bg-success text-success-content">
-            <code>Game Pass!</code>
-          </pre>
-        )}
-        {result === false && (
-          <pre data-prefix=">" className="bg-warning text-warning-content">
-            <code>Game Fail!</code>
+
+        {SettlementOver && (
+          <pre
+            data-prefix=">"
+            className={`bg-${RESULT_COLOR_MAP[gameResult]} text-${RESULT_COLOR_MAP[gameResult]}-content`}
+          >
+            <code>Game Result: {RESULT_MAP[gameResult]}!</code>
           </pre>
         )}
 
@@ -240,7 +232,14 @@ export const GameOver = ({
             </button>
           )}
           {transactionHash && (
-            <button className="rounded-none text-success btn btn-xs btn-ghost">
+            <button
+              className="rounded-none text-success btn btn-xs btn-ghost"
+              onClick={() =>
+                window.open(
+                  `${Azeroth.blockExplorers.default.url}/tx/${transactionHash}`
+                )
+              }
+            >
               [Browse Transaction]
             </button>
           )}

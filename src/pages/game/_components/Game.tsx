@@ -30,6 +30,7 @@ import Header from "./Header";
 import { Tip } from "./Tip";
 import { Description } from "./Description";
 import { getMap } from "@/api/zkp";
+import { useDispatchStore } from "@/store";
 
 export const Game = () => {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -37,6 +38,7 @@ export const Game = () => {
   const [loading, setLoading] = useState(true);
   const { bindKey } = keystrokes as unknown as Keystrokes;
   const [gameIsOver, setGameOver] = useState(false);
+  const dispatchStore = useDispatchStore();
 
   useEffect(() => {
     void Promise.all([getMap(), Assets.load("/spritesheet.json")]).then(
@@ -45,7 +47,11 @@ export const Game = () => {
         if (!mapInfo.data) {
           return console.error("get map fail");
         }
-
+        dispatchStore &&
+          dispatchStore({
+            type: "map",
+            param: mapInfo.data,
+          });
         const { Map, StartPosition, ExitPosition, ShortestPathLength } =
           mapInfo.data;
         const StageHeightCells = Map.length;
