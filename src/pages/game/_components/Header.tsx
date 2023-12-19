@@ -1,9 +1,16 @@
-import { useImperativeHandle, forwardRef } from "react";
-import { useSwitchNetwork, useContractRead, useAccount } from "wagmi";
+import { useImperativeHandle, forwardRef, useEffect } from "react";
+import {
+  useSwitchNetwork,
+  useContractRead,
+  useAccount,
+  useBalance,
+} from "wagmi";
 import { L3, L3Dev } from "@/hooks/ctx/chain";
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
 import { useDispatchStore } from "@/store";
 import { ABI, RESULT_MAP, RESULT_COLOR_MAP } from "@/constants";
+import { dispatch as dispatchGameState } from "../_utils";
+
 const Chain = import.meta.env.MODE === "development" ? L3Dev : L3;
 const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
 
@@ -14,6 +21,36 @@ const Header = forwardRef((_props, ref) => {
   const { selectedNetworkId } = useWeb3ModalState();
   const { error, isLoading, switchNetwork } = useSwitchNetwork();
   const { address } = useAccount();
+  const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
+    address,
+  });
+
+  useEffect(() => {
+    if (
+      String(selectedNetworkId) === String(Chain.id) &&
+      !isBalanceLoading &&
+      balanceData
+    ) {
+      console.log("game is ready");
+      dispatchGameState &&
+        dispatchGameState({
+          type: "ready",
+          param: {
+            ready: true,
+          },
+        });
+    } else {
+      console.log("game is lock");
+      dispatchGameState &&
+        dispatchGameState({
+          type: "ready",
+          param: {
+            ready: false,
+          },
+        });
+    }
+  }, [selectedNetworkId, isBalanceLoading, balanceData]);
+
   const {
     data,
     isLoading: isContractLoading,
@@ -96,7 +133,7 @@ const Header = forwardRef((_props, ref) => {
       </header>
 
       {selectedNetworkId != String(Chain.id) && (
-        <div className="my-4 wrap">
+        <div className="wrap">
           <div role="alert" className="alert ">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -141,6 +178,32 @@ const Header = forwardRef((_props, ref) => {
                 />
               </svg>
               <span className="text-sm">{error.message}</span>
+            </div>
+          )}
+          {balanceData?.formatted && Number(balanceData.formatted) <= 0 && (
+            <div role="alert" className="alert ">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                className="h-6 stroke-current w-6 shrink-0"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              <span className="text-sm">
+                Your balance({balanceData.formatted}
+                {balanceData?.symbol}) is not enough!
+              </span>
+              <div>
+                <button className="btn btn-success btn-sm" disabled={isLoading}>
+                  {isLoading ? "requesting" : "request ETH"}
+                </button>
+              </div>
             </div>
           )}
         </div>

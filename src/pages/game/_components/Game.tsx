@@ -135,25 +135,29 @@ export const Game = () => {
           });
 
         const handleKeyUp = () => {
-          if (gameState.gameOver || gameState.moving) return;
+          if (!gameState.ready || gameState.gameOver || gameState.moving)
+            return;
           dispatch && dispatch({ type: "move.up" });
           move("up");
         };
 
         const handleKeyDown = () => {
-          if (gameState.gameOver || gameState.moving) return;
+          if (!gameState.ready || gameState.gameOver || gameState.moving)
+            return;
           dispatch && dispatch({ type: "move.down" });
           move("down");
         };
 
         const handleKeyLeft = () => {
-          if (gameState.gameOver || gameState.moving) return;
+          if (!gameState.ready || gameState.gameOver || gameState.moving)
+            return;
           dispatch && dispatch({ type: "move.left" });
           move("left");
         };
 
         const handleKeyRight = () => {
-          if (gameState.gameOver || gameState.moving) return;
+          if (!gameState.ready || gameState.gameOver || gameState.moving)
+            return;
           dispatch && dispatch({ type: "move.right" });
           move("right");
         };

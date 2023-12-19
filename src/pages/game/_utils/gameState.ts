@@ -2,6 +2,7 @@ import { Sprite } from "pixi.js";
 import { Step, TextureType } from ".";
 
 export type StoreType = {
+  ready: boolean;
   character: Sprite | undefined;
   moving: boolean;
   path: Step[];
@@ -19,6 +20,7 @@ export type StoreDispatch = {
 };
 
 export const gameState: StoreType = {
+  ready: false,
   character: undefined,
   moving: false,
   path: [],
@@ -34,6 +36,9 @@ export function dispatch(action: StoreDispatch) {
   const result: StoreType = { ...gameState };
 
   switch (action.type) {
+    case "ready":
+      result.ready = !!action.param?.ready as boolean;
+      break;
     case "init":
       if (action.param?.character && Array.isArray(action.param?.path)) {
         result.character = action.param.character as Sprite;
