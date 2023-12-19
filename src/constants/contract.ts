@@ -107,6 +107,25 @@ end
 
 export const ABI = [
   {
+    type: "event",
+    name: "VerifyZK",
+    inputs: [
+      {
+        type: "uint256",
+        name: "verificationResult",
+        internalType: "uint256",
+        indexed: true,
+      },
+      {
+        type: "uint256[]",
+        name: "output",
+        internalType: "uint256[]",
+        indexed: false,
+      },
+    ],
+    anonymous: false,
+  },
+  {
     type: "function",
     stateMutability: "view",
     outputs: [
@@ -123,7 +142,7 @@ export const ABI = [
     inputs: [
       { type: "string", name: "programHash", internalType: "string" },
       { type: "string", name: "publicInput", internalType: "string" },
-      { type: "string", name: "arweaveLink", internalType: "string" },
+      { type: "string", name: "url", internalType: "string" },
     ],
   },
 ];

@@ -20,7 +20,7 @@ const Header = forwardRef((_props, ref) => {
 
   const { selectedNetworkId } = useWeb3ModalState();
   const { error, isLoading, switchNetwork } = useSwitchNetwork();
-  const { address, isDisconnected } = useAccount();
+  const { address, isConnected } = useAccount();
   const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
     address,
   });
@@ -132,7 +132,7 @@ const Header = forwardRef((_props, ref) => {
         <w3m-button />
       </header>
 
-      {isDisconnected && selectedNetworkId != String(Chain.id) && (
+      {isConnected && selectedNetworkId != String(Chain.id) && (
         <div className="wrap">
           <div role="alert" className="alert ">
             <svg
