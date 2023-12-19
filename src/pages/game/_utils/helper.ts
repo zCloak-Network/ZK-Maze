@@ -96,58 +96,29 @@ export function Role(
     move: (direction: "up" | "down" | "left" | "right" | "stop") => {
       if (direction !== "stop") {
         currentDirection = direction;
-      }
-
-      switch (direction) {
-        case "up":
-          upAnimate.visible = true;
-          upAnimate.gotoAndPlay(1);
-          downAnimate.visible = false;
-          leftAnimate.visible = false;
-          rightAnimate.visible = false;
-
-          break;
-        case "down":
-          currentDirection = direction;
-          upAnimate.visible = false;
-          downAnimate.visible = true;
-          downAnimate.gotoAndPlay(1);
-          leftAnimate.visible = false;
-          rightAnimate.visible = false;
-          break;
-        case "left":
-          currentDirection = direction;
-          upAnimate.visible = false;
-          downAnimate.visible = false;
-          leftAnimate.visible = true;
-          leftAnimate.gotoAndPlay(1);
-          rightAnimate.visible = false;
-          break;
-        case "right":
-          currentDirection = direction;
-          upAnimate.visible = false;
-          downAnimate.visible = false;
-          leftAnimate.visible = false;
-          rightAnimate.visible = true;
-          rightAnimate.gotoAndPlay(1);
-          break;
-
-        case "stop":
-          switch (currentDirection) {
-            case "up":
-              upAnimate.gotoAndStop(0);
-              break;
-            case "down":
-              downAnimate.gotoAndStop(0);
-              break;
-            case "left":
-              leftAnimate.gotoAndStop(0);
-              break;
-            case "right":
-              rightAnimate.gotoAndStop(0);
-              break;
+        params.forEach((item, index) => {
+          if (directionIndexMap[currentDirection].includes(index)) {
+            item.visible = true;
+            item.gotoAndPlay(1);
+          } else {
+            item.visible = false;
           }
-          break;
+        });
+      } else {
+        switch (currentDirection) {
+          case "up":
+            upAnimate.gotoAndStop(0);
+            break;
+          case "down":
+            downAnimate.gotoAndStop(0);
+            break;
+          case "left":
+            leftAnimate.gotoAndStop(0);
+            break;
+          case "right":
+            rightAnimate.gotoAndStop(0);
+            break;
+        }
       }
     },
   };
