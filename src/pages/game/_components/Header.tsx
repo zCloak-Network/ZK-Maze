@@ -184,28 +184,30 @@ const Header = forwardRef((_props, ref) => {
       {String(selectedNetworkId) === String(Chain.id) &&
         balanceData?.value &&
         Number(balanceData.value) <= 100 && (
-          <div role="alert" className="alert ">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              className="h-6 stroke-current w-6 shrink-0"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
-            <span className="text-sm">
-              Your balance({balanceData.formatted}
-              {balanceData?.symbol}) is not enough!
-            </span>
-            <div>
-              <button className="btn btn-success btn-sm" disabled={isLoading}>
-                {isLoading ? "requesting" : "request ETH"}
-              </button>
+          <div className="wrap">
+            <div role="alert" className="alert mt-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                className="h-6 stroke-current w-6 shrink-0"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              <span className="text-sm">
+                Your balance({balanceData.formatted}
+                {balanceData?.symbol}) is not enough!
+              </span>
+              <div>
+                <button className="btn btn-success btn-sm" disabled={isLoading}>
+                  {isLoading ? "requesting" : "request ETH"}
+                </button>
+              </div>
             </div>
           </div>
         )}
