@@ -41,5 +41,3 @@ export const L3Dev = {
     },
   },
 } as const satisfies Chain;
-
-export const Azeroth = import.meta.env.MODE === "production" ? L3 : L3Dev;

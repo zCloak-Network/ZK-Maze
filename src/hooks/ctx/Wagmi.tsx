@@ -1,6 +1,7 @@
 import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/react";
 import { WagmiConfig } from "wagmi";
-import { Azeroth } from "@/constants";
+import { L3, L3Dev } from "@/constants";
+const Azeroth = import.meta.env.MODE === "production" ? L3 : L3Dev;
 
 // 1. Get projectId at https://cloud.walletconnect.com
 const projectId = "9b4a033ddb52a00e24afe26be68e50cb";

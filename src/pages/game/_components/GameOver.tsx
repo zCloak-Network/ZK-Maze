@@ -4,14 +4,9 @@
 import { useState, useEffect } from "react";
 import FileSaver from "file-saver";
 import { generatePublicInput, gameState } from "../_utils";
-import {
-  PROGRAM_STRING,
-  ABI,
-  RESULT_MAP,
-  RESULT_COLOR_MAP,
-  Azeroth,
-} from "@/constants";
-import * as myWorker from "../_scripts/zkpWorker.ts";
+import { PROGRAM_STRING, ABI, RESULT_MAP, RESULT_COLOR_MAP } from "@/constants";
+import { Azeroth } from "../_utils";
+import * as myWorker from "../_utils/zkpWorker.ts";
 import { upload } from "@/api/zkp.ts";
 import { useContractWrite } from "wagmi";
 import { useStateStore } from "@/store";

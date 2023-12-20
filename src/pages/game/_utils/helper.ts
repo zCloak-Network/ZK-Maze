@@ -1,5 +1,9 @@
 import { CellSize, TextureType, Step, animationSpeed } from "./config";
 import { Sprite, AnimatedSprite, Container } from "pixi.js";
+import { L3, L3Dev } from "@/constants";
+
+export const Azeroth = import.meta.env.MODE === "production" ? L3 : L3Dev;
+
 // 检测坐标系中的点是否越界
 export function isOutOfBound(Map: TextureType[][], point: Step) {
   const { x, y } = point;
