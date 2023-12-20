@@ -5,10 +5,9 @@ import {
   useAccount,
   useBalance,
 } from "wagmi";
-import { L3, L3Dev } from "@/hooks/ctx/chain";
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
 import { useDispatchStore } from "@/store";
-import { ABI, RESULT_MAP, RESULT_COLOR_MAP } from "@/constants";
+import { ABI, RESULT_MAP, RESULT_COLOR_MAP, L3, L3Dev } from "@/constants";
 import { dispatch as dispatchGameState } from "../_utils";
 
 const Chain = import.meta.env.MODE === "development" ? L3Dev : L3;
@@ -90,7 +89,7 @@ const Header = forwardRef((_props, ref) => {
         <div className="flex justify-center items-center absolute left-0 w-full h-full top-0">
           <div
             className="tooltip tooltip-bottom tooltip-accent"
-            data-tip={RESULT_MAP.join(" < ")}
+            data-tip="Haven't Played < Done < Efficiency First"
           >
             <div className="stats cursor-pointer">
               {isContractLoading ? (

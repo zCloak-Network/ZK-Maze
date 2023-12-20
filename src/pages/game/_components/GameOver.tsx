@@ -4,11 +4,16 @@
 import { useState, useEffect } from "react";
 import FileSaver from "file-saver";
 import { generatePublicInput, gameState } from "../_utils";
-import { PROGRAM_STRING, ABI, RESULT_MAP, RESULT_COLOR_MAP } from "@/constants";
+import {
+  PROGRAM_STRING,
+  ABI,
+  RESULT_MAP,
+  RESULT_COLOR_MAP,
+  Azeroth,
+} from "@/constants";
 import * as myWorker from "../_scripts/zkpWorker.ts";
 import { upload } from "@/api/zkp.ts";
 import { useContractWrite } from "wagmi";
-import { Azeroth } from "@/hooks/ctx/chain";
 import { useStateStore } from "@/store";
 
 const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
