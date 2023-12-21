@@ -1,7 +1,7 @@
 import { Chain } from "wagmi";
 
 export const L3 = {
-  id: 27996923305,
+  id: 76297047005,
   name: "Azeroth",
   network: "Azeroth",
   nativeCurrency: {
@@ -22,7 +22,7 @@ export const L3 = {
 } as const satisfies Chain;
 
 export const L3Dev = {
-  id: 27996923305,
+  id: 76297047005,
   name: "Azeroth",
   network: "Azeroth",
   nativeCurrency: {

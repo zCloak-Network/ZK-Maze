@@ -140,11 +140,12 @@ export const GameOver = ({
       run: () => {
         return new Promise((resolve, reject) => {
           if (typeof writeAsync === "function") {
+            // console.log("writeAsync:", programHash, publicInput, zkpURL);
             void writeAsync({
               args: [programHash, publicInput, zkpURL],
             })
               .then((res) => {
-                console.log("writeAsync", res);
+                console.log("writeAsync get", res);
                 if (res.hash) {
                   setTransactionHash(res.hash);
                   onRefresh?.();
