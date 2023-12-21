@@ -199,7 +199,7 @@ const Header = forwardRef((_props, ref) => {
                 ></path>
               </svg>
               <span className="text-sm">
-                Your balance({balanceData.formatted}
+                Your balance({balanceData?.formatted || 0}
                 {balanceData?.symbol}) is not enough!
               </span>
               <div>
