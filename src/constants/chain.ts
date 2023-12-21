@@ -1,7 +1,7 @@
 import { Chain } from "wagmi";
 
 export const L3 = {
-  id: 91751576100,
+  id: 27996923305,
   name: "Azeroth",
   network: "Azeroth",
   nativeCurrency: {
@@ -10,21 +10,21 @@ export const L3 = {
     symbol: "ETH",
   },
   rpcUrls: {
-    public: { http: ["https://nitro.zkid.app/"] },
-    default: { http: ["https://nitro.zkid.app/"] },
+    public: { http: ["https://nitro.zkid.xyz/"] },
+    default: { http: ["https://nitro.zkid.xyz/"] },
   },
   blockExplorers: {
     default: {
       name: "AzerothExplorer",
-      url: "https://nitro-explorer.zkid.app",
+      url: "https://nitro-explorer.zkid.xyz",
     },
   },
 } as const satisfies Chain;
 
 export const L3Dev = {
   id: 27996923305,
-  name: "Azeroth Test",
-  network: "Azeroth Testnet",
+  name: "Azeroth",
+  network: "Azeroth",
   nativeCurrency: {
     decimals: 18,
     name: "ETH",
