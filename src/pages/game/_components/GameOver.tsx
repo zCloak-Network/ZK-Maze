@@ -154,7 +154,10 @@ export const GameOver = ({
                   reject("contract fetch error");
                 }
               })
-              .catch(reject);
+              .catch(() => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                reject("contract send error");
+              });
           } else {
             reject("contract init error");
           }
@@ -244,10 +247,13 @@ export const GameOver = ({
               [Browse Transaction]
             </button>
           )}
-          {SettlementOver && (
+          {(SettlementOver || errorMsg) && (
             <button
               className="rounded-none text-error btn btn-xs btn-ghost"
-              onClick={onExit}
+              onClick={() => {
+                setErrorMsg(undefined);
+                onExit();
+              }}
             >
               [Exit]
             </button>

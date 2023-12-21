@@ -7,6 +7,8 @@ declare module "axios" {
   }
 }
 
+export const CHAIN_SERVICE = "https://nitro-faucet.zkid.xyz";
+
 export const CARD_SERVICE =
   import.meta.env.MODE === "production"
     ? "https://card-service.zkid.app"

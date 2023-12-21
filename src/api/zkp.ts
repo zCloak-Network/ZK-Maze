@@ -1,4 +1,4 @@
-import instance from "./axiosInstance";
+import instance, { CHAIN_SERVICE } from "./axiosInstance";
 
 export const upload = (params: FormData) => {
   return instance.post(`/api/s3/upload`, params, {
@@ -10,4 +10,10 @@ export const upload = (params: FormData) => {
 
 export const getMap = () => {
   return instance.get(`/api/zkmaze/generate`);
+};
+
+export const getETH = (params: { ethAddress: `0x${string}` }) => {
+  return instance.post(`/sendEth`, params, {
+    baseURL: CHAIN_SERVICE,
+  });
 };

@@ -1,4 +1,4 @@
-import { useImperativeHandle, forwardRef, useEffect } from "react";
+import { useImperativeHandle, forwardRef, useEffect, useState } from "react";
 import {
   useSwitchNetwork,
   useContractRead,
@@ -9,6 +9,8 @@ import { useWeb3ModalState } from "@web3modal/wagmi/react";
 import { useDispatchStore } from "@/store";
 import { ABI, RESULT_MAP, RESULT_COLOR_MAP, L3, L3Dev } from "@/constants";
 import { dispatch as dispatchGameState } from "../_utils";
+import { getETH } from "@/api/zkp";
+import { toast } from "react-toastify";
 
 const Chain = import.meta.env.MODE === "development" ? L3Dev : L3;
 const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
@@ -78,6 +80,25 @@ const Header = forwardRef((_props, ref) => {
     },
     []
   );
+
+  const [sendETHLoading, setSendETHLoading] = useState(false);
+  const sendETH = () => {
+    if (address && !sendETHLoading) {
+      setSendETHLoading(true);
+      void getETH({
+        ethAddress: address,
+      })
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          toast.error(err?.message || "fetch fail!");
+        })
+        .finally(() => {
+          setSendETHLoading(false);
+        });
+    }
+  };
 
   return (
     <>
@@ -203,8 +224,15 @@ const Header = forwardRef((_props, ref) => {
                 {balanceData?.symbol}) is not enough!
               </span>
               <div>
-                <button className="btn btn-success btn-sm" disabled={isLoading}>
-                  {isLoading ? "requesting" : "request ETH"}
+                <button
+                  className="btn btn-success btn-sm"
+                  disabled={isBalanceLoading || sendETHLoading}
+                  onClick={sendETH}
+                >
+                  {(isBalanceLoading || sendETHLoading) && (
+                    <span className="loading loading-spinner"></span>
+                  )}
+                  request ETH
                 </button>
               </div>
             </div>
