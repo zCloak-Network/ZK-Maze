@@ -22,7 +22,7 @@ export const L3 = {
 } as const satisfies Chain;
 
 export const L3Dev = {
-  id: 42815099000,
+  id: 27996923305,
   name: "Azeroth Test",
   network: "Azeroth Testnet",
   nativeCurrency: {

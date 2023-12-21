@@ -30,7 +30,7 @@ const Header = forwardRef((_props, ref) => {
       !isBalanceLoading &&
       balanceData
     ) {
-      console.log("game is ready");
+      console.log("game is ready", balanceData);
       dispatchGameState &&
         dispatchGameState({
           type: "ready",
@@ -182,8 +182,7 @@ const Header = forwardRef((_props, ref) => {
         </div>
       )}
       {String(selectedNetworkId) === String(Chain.id) &&
-        balanceData?.value &&
-        Number(balanceData.value) <= 100 && (
+        Number(balanceData?.value || 0) <= 100 && (
           <div className="wrap">
             <div role="alert" className="alert mt-2">
               <svg
