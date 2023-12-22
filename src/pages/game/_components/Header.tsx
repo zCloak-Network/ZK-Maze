@@ -102,21 +102,21 @@ const Header = forwardRef((_props, ref) => {
 
   return (
     <>
-      <header className="flex shadow px-4 py-6 items-center mb-12 relative">
+      <header className="flex shadow mb-8 py-6 px-4 items-center relative">
         <img src="/Tiles/tile_0051.png" className="w-8" />
         <div className="font-semibold flex-1 text-primary text-2xl">
           ZK Maze
         </div>
-        <div className="flex justify-center items-center absolute left-0 w-full h-full top-0">
+        <div className="flex h-full w-full top-0 left-0 justify-center items-center absolute">
           <div
             className="tooltip tooltip-bottom tooltip-accent"
             data-tip="Haven't Played < Done < Efficiency First"
           >
-            <div className="stats cursor-pointer">
+            <div className="cursor-pointer stats">
               {isContractLoading ? (
                 <span>loading</span>
               ) : (
-                <div className="stat py-2">
+                <div className="py-2 stat">
                   <div
                     className={
                       "stat-figure text-" + RESULT_COLOR_MAP[Number(data)] || ""
@@ -126,7 +126,7 @@ const Header = forwardRef((_props, ref) => {
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
-                      className="inline-block w-8 h-8 stroke-current"
+                      className="h-8 stroke-current w-8 inline-block"
                     >
                       <path
                         strokeLinecap="round"
@@ -205,7 +205,7 @@ const Header = forwardRef((_props, ref) => {
       {String(selectedNetworkId) === String(Chain.id) &&
         Number(balanceData?.value || 0) <= 100 && (
           <div className="wrap">
-            <div role="alert" className="alert mt-2">
+            <div role="alert" className="mt-2 alert">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
