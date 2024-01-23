@@ -1,7 +1,9 @@
 import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/react";
 import { WagmiConfig } from "wagmi";
-import { L3, L3Dev } from "@/constants";
-const Azeroth = import.meta.env.MODE === "production" ? L3 : L3Dev;
+// import { L3, L3Dev } from "@/constants";
+import { arbitrum, arbitrumSepolia } from "@wagmi/core/chains";
+const Chains =
+  import.meta.env.MODE === "production" ? arbitrum : arbitrumSepolia;
 
 // 1. Get projectId at https://cloud.walletconnect.com
 const projectId = "9b4a033ddb52a00e24afe26be68e50cb";
@@ -14,7 +16,7 @@ const metadata = {
   icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
 
-const chains = [Azeroth];
+const chains = [Chains];
 const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata });
 
 // 3. Create modal

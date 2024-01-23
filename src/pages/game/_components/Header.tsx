@@ -7,12 +7,13 @@ import {
 } from "wagmi";
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
 import { useDispatchStore } from "@/store";
-import { ABI, RESULT_MAP, RESULT_COLOR_MAP, L3, L3Dev } from "@/constants";
+import { ABI, RESULT_MAP, RESULT_COLOR_MAP } from "@/constants";
 import { dispatch as dispatchGameState } from "../_utils";
 import { getETH } from "@/api/zkp";
 import { toast } from "react-toastify";
-
-const Chain = import.meta.env.MODE === "development" ? L3Dev : L3;
+import { arbitrum, arbitrumSepolia } from "@wagmi/core/chains";
+const Chain =
+  import.meta.env.MODE === "development" ? arbitrumSepolia : arbitrum;
 const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
 
 // eslint-disable-next-line react/display-name
@@ -92,6 +93,7 @@ const Header = forwardRef((_props, ref) => {
           console.log(res);
         })
         .catch((err) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
           toast.error(err?.message || "fetch fail!");
         })
         .finally(() => {
