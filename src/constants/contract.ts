@@ -107,42 +107,95 @@ end
 
 export const ABI = [
   {
-    type: "event",
-    name: "VerifyZK",
-    inputs: [
-      {
-        type: "uint256",
-        name: "verificationResult",
-        internalType: "uint256",
-        indexed: true,
-      },
-      {
-        type: "uint256[]",
-        name: "output",
-        internalType: "uint256[]",
-        indexed: false,
-      },
-    ],
     anonymous: false,
-  },
-  {
-    type: "function",
-    stateMutability: "view",
-    outputs: [
-      { type: "uint8", name: "", internalType: "enum zkMaze.Achievement" },
-    ],
-    name: "checkUserAchievement",
-    inputs: [{ type: "address", name: "userAddr", internalType: "address" }],
-  },
-  {
-    type: "function",
-    stateMutability: "nonpayable",
-    outputs: [],
-    name: "uploadZKSolution",
     inputs: [
-      { type: "string", name: "programHash", internalType: "string" },
-      { type: "string", name: "publicInput", internalType: "string" },
-      { type: "string", name: "url", internalType: "string" },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
+      },
     ],
+    name: "OwnershipTransferred",
+    type: "event",
+  },
+  {
+    inputs: [],
+    name: "canisterAddress",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "userAddr", type: "address" }],
+    name: "checkUserAchievement",
+    outputs: [
+      {
+        internalType: "enum zkMazeVerify.Achievement",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "renounceOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "addr", type: "address" }],
+    name: "setCanisterAddress",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "string", name: "programHash", type: "string" }],
+    name: "setProgramHash",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "newOwner", type: "address" }],
+    name: "transferOwnership",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "bytes", name: "signature", type: "bytes" },
+      { internalType: "string", name: "programhash", type: "string" },
+      { internalType: "string", name: "publicinput", type: "string" },
+      { internalType: "string[]", name: "output", type: "string[]" },
+    ],
+    name: "verifyECDSASignature",
+    outputs: [
+      {
+        internalType: "enum zkMazeVerify.Achievement",
+        name: "acheiventment",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
   },
 ];

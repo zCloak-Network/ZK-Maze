@@ -33,7 +33,7 @@ export const GameOver = ({
   const { writeAsync } = useContractWrite({
     address: ContractAddress,
     abi: ABI,
-    functionName: "uploadZKSolution",
+    functionName: "verifyECDSASignature",
     chainId: Azeroth.id,
   });
 
@@ -105,7 +105,7 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "2/4 Upload ZKP",
+      content: "2/4 ZK verification",
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
@@ -135,7 +135,7 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "3/4 ZK verification",
+      content: "3/4 Sync to blockchain",
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
