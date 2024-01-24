@@ -12,7 +12,7 @@ import { useContractWrite } from "wagmi";
 import { useStateStore } from "@/store";
 import fetch from "isomorphic-fetch";
 import { Actor, HttpAgent } from "@dfinity/agent";
-const agent = new HttpAgent({ fetch });
+const agent = new HttpAgent({ fetch, host: "https://ic0.app" });
 const idlFactory = ({ IDL }) => {
   return IDL.Service({ greet: IDL.Func([IDL.Text], [IDL.Text], ["query"]) });
 };
@@ -121,7 +121,7 @@ export const GameOver = ({
             actor
               .greet("hello world")
               .then((principal) => {
-                console.log(resolve);
+                console.log(principal);
                 resolve(true);
               })
               .catch(reject);
