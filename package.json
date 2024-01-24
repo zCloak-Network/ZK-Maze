@@ -12,14 +12,17 @@
     "postinstall": "husky install"
   },
   "dependencies": {
+    "@dfinity/agent": "^0.21.2",
     "@rwh/keystrokes": "^1.4.0",
     "@types/file-saver": "^2.0.7",
+    "@types/isomorphic-fetch": "^0.0.39",
     "@web3modal/wagmi": "^3.4.0",
     "@zcloak/crypto": "^2.0.0",
     "@zcloak/miden": "^2.0.0",
     "axios": "^1.6.2",
     "daisyui": "^4.4.19",
     "file-saver": "^2.0.5",
+    "isomorphic-fetch": "^3.0.0",
     "pixi.js": "7.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

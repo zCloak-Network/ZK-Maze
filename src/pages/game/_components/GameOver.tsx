@@ -10,6 +10,14 @@ import * as myWorker from "../_utils/zkpWorker.ts";
 import { upload } from "@/api/zkp.ts";
 import { useContractWrite } from "wagmi";
 import { useStateStore } from "@/store";
+import fetch from "isomorphic-fetch";
+import { Actor, HttpAgent } from "@dfinity/agent";
+const agent = new HttpAgent({ fetch });
+const idlFactory = ({ IDL }) => {
+  return IDL.Service({ greet: IDL.Func([IDL.Text], [IDL.Text], ["query"]) });
+};
+const canisterId = "7n7be-naaaa-aaaag-qc4xa-cai";
+const actor = Actor.createActor(idlFactory, { agent, canisterId });
 
 const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
 
@@ -110,25 +118,33 @@ export const GameOver = ({
       run: () => {
         return new Promise((resolve, reject) => {
           if (zkpResult) {
-            const file = new File(
-              [zkpResult],
-              `zkp-${new Date().getTime()}.json`,
-              {
-                type: "application/json",
-              }
-            );
-            const formData = new FormData();
-            formData.append("file", file);
-            upload(formData)
-              .then((res) => {
-                if (res && res.data) {
-                  setZkpURL(res.data);
-                  resolve(true);
-                } else {
-                  reject("upload error!");
-                }
+            actor
+              .greet("hello world")
+              .then((principal) => {
+                console.log(resolve);
+                resolve(true);
               })
               .catch(reject);
+
+            // const file = new File(
+            //   [zkpResult],
+            //   `zkp-${new Date().getTime()}.json`,
+            //   {
+            //     type: "application/json",
+            //   }
+            // );
+            // const formData = new FormData();
+            // formData.append("file", file);
+            // upload(formData)
+            //   .then((res) => {
+            //     if (res && res.data) {
+            //       setZkpURL(res.data);
+            //       resolve(true);
+            //     } else {
+            //       reject("upload error!");
+            //     }
+            //   })
+            //   .catch(reject);
           }
         });
       },
