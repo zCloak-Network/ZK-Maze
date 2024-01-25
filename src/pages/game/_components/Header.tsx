@@ -8,12 +8,10 @@ import {
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
 import { useDispatchStore } from "@/store";
 import { ABI, RESULT_MAP, RESULT_COLOR_MAP } from "@/constants";
-import { dispatch as dispatchGameState } from "../_utils";
+import { dispatch as dispatchGameState, Chain } from "../_utils";
 import { getETH } from "@/api/zkp";
 import { toast } from "react-toastify";
-import { arbitrum, arbitrumSepolia } from "@wagmi/core/chains";
-const Chain =
-  import.meta.env.MODE === "development" ? arbitrumSepolia : arbitrum;
+
 const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
 
 // eslint-disable-next-line react/display-name

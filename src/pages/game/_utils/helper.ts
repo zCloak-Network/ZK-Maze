@@ -1,8 +1,18 @@
 import { CellSize, TextureType, Step, animationSpeed } from "./config";
 import { Sprite, AnimatedSprite, Container } from "pixi.js";
 import { arbitrum, arbitrumSepolia } from "@wagmi/core/chains";
-export const Azeroth =
-  import.meta.env.MODE === "production" ? arbitrum : arbitrumSepolia;
+export const Chain =
+  import.meta.env.MODE === "production"
+    ? arbitrum
+    : {
+        ...arbitrumSepolia,
+        blockExplorers: {
+          default: {
+            name: "arbiscan",
+            url: "https://sepolia.arbiscan.io",
+          },
+        },
+      };
 
 // 检测坐标系中的点是否越界
 export function isOutOfBound(Map: TextureType[][], point: Step) {

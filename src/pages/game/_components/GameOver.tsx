@@ -1,22 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
+import { BaseError, ContractFunctionRevertedError } from "viem";
 import { useState, useEffect } from "react";
 import FileSaver from "file-saver";
 import { generatePublicInput, gameState } from "../_utils";
-import { PROGRAM_STRING, ABI, RESULT_MAP, RESULT_COLOR_MAP } from "@/constants";
-import { Azeroth } from "../_utils";
+import {
+  PROGRAM_STRING,
+  ABI,
+  RESULT_MAP,
+  RESULT_COLOR_MAP,
+  idlFactory,
+} from "@/constants";
+import { Chain } from "../_utils";
 import * as myWorker from "../_utils/zkpWorker.ts";
-import { upload } from "@/api/zkp.ts";
 import { useContractWrite } from "wagmi";
 import { useStateStore } from "@/store";
 import fetch from "isomorphic-fetch";
 import { Actor, HttpAgent } from "@dfinity/agent";
+
 const agent = new HttpAgent({ fetch, host: "https://ic0.app" });
-const idlFactory = ({ IDL }) => {
-  return IDL.Service({ greet: IDL.Func([IDL.Text], [IDL.Text], ["query"]) });
-};
-const canisterId = "7n7be-naaaa-aaaag-qc4xa-cai";
+
+const canisterId = import.meta.env.VITE_APP_CANISTERID;
 const actor = Actor.createActor(idlFactory, { agent, canisterId });
 
 const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
@@ -32,9 +37,11 @@ export const GameOver = ({
   const [step, setStep] = useState(0);
   const [zkpResult, setZkpResult] = useState<string | undefined>();
   const [publicInput, setPublicInput] = useState<string | undefined>();
-  const [zkpURL, setZkpURL] = useState<string | undefined>();
   const [programHash, setProgramHash] = useState<string | undefined>();
   const [transactionHash, setTransactionHash] = useState<string | undefined>();
+  const [signature, setSignature] = useState<string | undefined>();
+  const [publicInputHash, setPublicInputHash] = useState<string | undefined>();
+  const [outputVec, setOutputVec] = useState<string | undefined>();
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
   const { gameResult } = useStateStore();
 
@@ -42,7 +49,7 @@ export const GameOver = ({
     address: ContractAddress,
     abi: ABI,
     functionName: "verifyECDSASignature",
-    chainId: Azeroth.id,
+    chainId: Chain.id,
   });
 
   const SettlementProgress = [
@@ -118,33 +125,22 @@ export const GameOver = ({
       run: () => {
         return new Promise((resolve, reject) => {
           if (zkpResult) {
+            console.log("2/4:", programHash, publicInput, zkpResult);
             actor
-              .greet("hello world")
-              .then((principal) => {
-                console.log(principal);
-                resolve(true);
+              .zk_verify(programHash, publicInput, zkpResult)
+              .then((res) => {
+                console.log(res);
+                if (Array.isArray(res) && res.length === 3) {
+                  const [canister_Signature, publicInputHash, outputVec] = res;
+                  setSignature(canister_Signature);
+                  setPublicInputHash(publicInputHash);
+                  setOutputVec(outputVec);
+                  resolve(true);
+                } else {
+                  reject(false);
+                }
               })
               .catch(reject);
-
-            // const file = new File(
-            //   [zkpResult],
-            //   `zkp-${new Date().getTime()}.json`,
-            //   {
-            //     type: "application/json",
-            //   }
-            // );
-            // const formData = new FormData();
-            // formData.append("file", file);
-            // upload(formData)
-            //   .then((res) => {
-            //     if (res && res.data) {
-            //       setZkpURL(res.data);
-            //       resolve(true);
-            //     } else {
-            //       reject("upload error!");
-            //     }
-            //   })
-            //   .catch(reject);
           }
         });
       },
@@ -156,24 +152,47 @@ export const GameOver = ({
       run: () => {
         return new Promise((resolve, reject) => {
           if (typeof writeAsync === "function") {
-            // console.log("writeAsync:", programHash, publicInput, zkpURL);
-            void writeAsync({
-              args: [programHash, publicInput, zkpURL],
-            })
-              .then((res) => {
-                console.log("writeAsync get", res);
-                if (res.hash) {
-                  setTransactionHash(res.hash);
-                  onRefresh?.();
-                  resolve(true);
-                } else {
-                  reject("contract fetch error");
-                }
+            console.log(
+              "3/4:",
+              `0x${signature}`,
+              programHash,
+              publicInputHash,
+              outputVec
+            );
+            try {
+              void writeAsync({
+                args: [
+                  `0x${signature}`,
+                  programHash,
+                  publicInputHash,
+                  outputVec,
+                ],
               })
-              .catch(() => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                reject("contract send error");
-              });
+                .then((res) => {
+                  console.log("writeAsync get", res);
+                  if (res.hash) {
+                    setTransactionHash(res.hash);
+                    onRefresh?.();
+                    resolve(true);
+                  } else {
+                    reject("contract fetch error");
+                  }
+                })
+                .catch(() => {
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                  reject("contract send error");
+                });
+            } catch (err) {
+              if (err instanceof BaseError) {
+                const revertError = err.walk(
+                  (err) => err instanceof ContractFunctionRevertedError
+                );
+                if (revertError instanceof ContractFunctionRevertedError) {
+                  const errorName = revertError.data?.errorName ?? "";
+                  console.log(errorName);
+                }
+              }
+            }
           } else {
             reject("contract init error");
           }
@@ -256,7 +275,7 @@ export const GameOver = ({
               className="rounded-none text-success btn btn-xs btn-ghost"
               onClick={() =>
                 window.open(
-                  `${Azeroth.blockExplorers.default.url}/tx/${transactionHash}`
+                  `${Chain.blockExplorers.default.url}/tx/${transactionHash}`
                 )
               }
             >
