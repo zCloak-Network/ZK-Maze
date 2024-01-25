@@ -1,9 +1,9 @@
 import { createWeb3Modal, defaultWagmiConfig } from "@web3modal/wagmi/react";
 import { WagmiConfig } from "wagmi";
 // import { L3, L3Dev } from "@/constants";
-import { arbitrum, arbitrumSepolia } from "@wagmi/core/chains";
-const Chains =
-  import.meta.env.MODE === "production" ? arbitrum : arbitrumSepolia;
+import { arbitrumSepolia } from "@wagmi/core/chains";
+const Chains = arbitrumSepolia;
+// import.meta.env.MODE === "production" ? arbitrum : arbitrumSepolia;
 
 // 1. Get projectId at https://cloud.walletconnect.com
 const projectId = "9b4a033ddb52a00e24afe26be68e50cb";
