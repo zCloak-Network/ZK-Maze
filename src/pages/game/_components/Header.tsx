@@ -8,7 +8,7 @@ import {
   useBlockNumber,
   useAccountEffect,
 } from "wagmi";
-import { useWeb3ModalState, useWeb3ModalEvents } from "@web3modal/wagmi/react";
+import { useWeb3ModalState } from "@web3modal/wagmi/react";
 import { useDispatchStore } from "@/store";
 import { ABI, RESULT_MAP, RESULT_COLOR_MAP } from "@/constants";
 import { dispatch as dispatchGameState, Chain } from "../_utils";
@@ -20,7 +20,6 @@ const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
 
 // eslint-disable-next-line react/display-name
 const Header = forwardRef((_props, ref) => {
-  const events = useWeb3ModalEvents();
   const queryClient = useQueryClient();
   const { data: blockNumber } = useBlockNumber({ watch: true });
 
@@ -33,10 +32,6 @@ const Header = forwardRef((_props, ref) => {
       setIsconnected(false);
     },
   });
-
-  useEffect(() => {
-    console.log("events", events);
-  }, [events]);
 
   const dispatch = useDispatchStore();
 
