@@ -1,6 +1,6 @@
 import { CellSize, TextureType, Step, animationSpeed } from "./config";
 import { Sprite, AnimatedSprite, Container } from "pixi.js";
-import { arbitrumSepolia } from "@wagmi/core/chains";
+import { arbitrumSepolia } from "wagmi/chains";
 export const Chain = {
   ...arbitrumSepolia,
   blockExplorers: {

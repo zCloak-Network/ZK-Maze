@@ -1,8 +1,7 @@
- 
-
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { BaseError, ContractFunctionRevertedError } from "viem";
+import { useWaitForTransactionReceipt } from "wagmi";
 import { useState, useEffect } from "react";
 import FileSaver from "file-saver";
 import { generatePublicInput, gameState } from "../_utils";
@@ -15,7 +14,7 @@ import {
 } from "@/constants";
 import { Chain } from "../_utils";
 import * as myWorker from "../_utils/zkpWorker.ts";
-import { useContractWrite } from "wagmi";
+import { useWriteContract } from "wagmi";
 import { useStateStore } from "@/store";
 import fetch from "isomorphic-fetch";
 import { Actor, HttpAgent } from "@dfinity/agent";
@@ -39,19 +38,27 @@ export const GameOver = ({
   const [zkpResult, setZkpResult] = useState<string | undefined>();
   const [publicInput, setPublicInput] = useState<string | undefined>();
   const [programHash, setProgramHash] = useState<string | undefined>();
-  const [transactionHash, setTransactionHash] = useState<string | undefined>();
+  const [transactionHash, setTransactionHash] = useState<
+    `0x${string}` | undefined
+  >();
   const [signature, setSignature] = useState<string | undefined>();
   const [publicInputHash, setPublicInputHash] = useState<string | undefined>();
   const [outputVec, setOutputVec] = useState<string | undefined>();
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
   const { gameResult } = useStateStore();
 
-  const { writeAsync } = useContractWrite({
-    address: ContractAddress,
-    abi: ABI,
-    functionName: "verifyECDSASignature",
-    chainId: Chain.id,
+  const { writeContractAsync } = useWriteContract();
+
+  const contractResult = useWaitForTransactionReceipt({
+    hash: transactionHash,
   });
+
+  useEffect(() => {
+    if (contractResult?.status === "success") {
+      console.log("onRefresh contractResult", contractResult);
+      onRefresh?.();
+    }
+  }, [contractResult]);
 
   const SettlementProgress = [
     {
@@ -79,7 +86,7 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "1/4 Generate ZKP",
+      content: "1/4 Generate Zero Knowledge Proof locally",
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
@@ -121,7 +128,7 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "2/4 ZK verification",
+      content: "2/4 Verify proof on decentralized network",
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
@@ -148,11 +155,11 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "3/4 Sync to blockchain",
+      content: "3/4 Write verification on Arbitrum blockchain",
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
-          if (typeof writeAsync === "function") {
+          if (typeof writeContractAsync === "function") {
             console.log(
               "3/4:",
               `0x${signature}`,
@@ -161,7 +168,11 @@ export const GameOver = ({
               outputVec
             );
             try {
-              void writeAsync({
+              void writeContractAsync({
+                address: ContractAddress,
+                abi: ABI,
+                functionName: "verifyECDSASignature",
+                chainId: Chain.id,
                 args: [
                   `0x${signature}`,
                   programHash,
@@ -169,11 +180,11 @@ export const GameOver = ({
                   outputVec,
                 ],
               })
-                .then((res) => {
-                  console.log("writeAsync get", res);
-                  if (res.hash) {
-                    setTransactionHash(res.hash);
-                    onRefresh?.();
+                .then((hash) => {
+                  console.log("writeContractAsync get", hash);
+                  if (hash) {
+                    setTransactionHash(hash);
+
                     resolve(true);
                   } else {
                     reject("contract fetch error");
@@ -201,13 +212,13 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "4/4 Done!",
+      content: "4/4 Determination of achievement on chain",
       class: "text-success",
       run: () => {
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve(true);
-          }, 100);
+          }, 1000);
         });
       },
     },

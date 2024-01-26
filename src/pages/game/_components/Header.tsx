@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { useImperativeHandle, forwardRef, useEffect, useState } from "react";
 import {
-  useSwitchNetwork,
-  useContractRead,
+  useSwitchChain,
+  useReadContract,
   useAccount,
   useBalance,
+  useBlockNumber,
+  useAccountEffect,
 } from "wagmi";
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
 import { useDispatchStore } from "@/store";
@@ -12,19 +14,41 @@ import { ABI, RESULT_MAP, RESULT_COLOR_MAP } from "@/constants";
 import { dispatch as dispatchGameState, Chain } from "../_utils";
 import { getETH } from "@/api/zkp";
 import { toast } from "react-toastify";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
 
 // eslint-disable-next-line react/display-name
 const Header = forwardRef((_props, ref) => {
+  const queryClient = useQueryClient();
+  const { data: blockNumber } = useBlockNumber({ watch: true });
+
+  const [isConnected, setIsconnected] = useState(false);
+  useAccountEffect({
+    onConnect() {
+      setIsconnected(true);
+    },
+    onDisconnect() {
+      setIsconnected(false);
+    },
+  });
+
   const dispatch = useDispatchStore();
 
   const { selectedNetworkId } = useWeb3ModalState();
-  const { error, isLoading, switchNetwork } = useSwitchNetwork();
-  const { address, isConnected } = useAccount();
-  const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
+  const { error, isPending, switchChain } = useSwitchChain();
+  const { address } = useAccount();
+  const {
+    data: balanceData,
+    isLoading: isBalanceLoading,
+    queryKey,
+  } = useBalance({
     address,
   });
+
+  useEffect(() => {
+    void queryClient.invalidateQueries({ queryKey });
+  }, [blockNumber, queryClient, queryKey]);
 
   useEffect(() => {
     if (
@@ -54,22 +78,26 @@ const Header = forwardRef((_props, ref) => {
 
   const {
     data,
-    isLoading: isContractLoading,
+    isPending: isContractLoading,
+    isSuccess: isContractSuccess,
     refetch,
-  } = useContractRead({
+  } = useReadContract({
     address: ContractAddress,
     abi: ABI,
     functionName: "checkUserAchievement",
     args: [address],
-    onSuccess: (data) => {
-      console.log("useContractRead", data);
+  });
+
+  useEffect(() => {
+    if (isContractSuccess) {
+      console.log("useReadContract", data);
       dispatch &&
         dispatch({
           type: "update",
           param: data,
         });
-    },
-  });
+    }
+  }, [isContractSuccess, data]);
 
   useImperativeHandle(
     ref,
@@ -78,7 +106,7 @@ const Header = forwardRef((_props, ref) => {
         refetch,
       };
     },
-    []
+    [refetch]
   );
 
   const [sendETHLoading, setSendETHLoading] = useState(false);
@@ -183,10 +211,10 @@ const Header = forwardRef((_props, ref) => {
             <div>
               <button
                 className="btn btn-primary btn-sm"
-                disabled={isLoading}
-                onClick={() => switchNetwork?.(Chain.id)}
+                disabled={isPending}
+                onClick={() => switchChain?.({ chainId: Chain.id })}
               >
-                {isLoading ? "switching" : "switch network"}
+                {isPending ? "switching" : "switch network"}
               </button>
             </div>
           </div>
