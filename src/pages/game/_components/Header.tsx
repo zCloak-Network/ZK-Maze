@@ -6,7 +6,6 @@ import {
   useAccount,
   useBalance,
   useBlockNumber,
-  useAccountEffect,
 } from "wagmi";
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
 import { useDispatchStore } from "@/store";
@@ -22,16 +21,6 @@ const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
 const Header = forwardRef((_props, ref) => {
   const queryClient = useQueryClient();
   const { data: blockNumber } = useBlockNumber({ watch: true });
-
-  const [isConnected, setIsconnected] = useState(false);
-  useAccountEffect({
-    onConnect() {
-      setIsconnected(true);
-    },
-    onDisconnect() {
-      setIsconnected(false);
-    },
-  });
 
   const dispatch = useDispatchStore();
 
@@ -188,7 +177,7 @@ const Header = forwardRef((_props, ref) => {
         <w3m-button balance={"hide"} />
       </header>
 
-      {isConnected && String(selectedNetworkId) !== String(Chain.id) && (
+      {String(selectedNetworkId) !== String(Chain.id) && (
         <div className="wrap">
           <div role="alert" className="alert ">
             <svg
