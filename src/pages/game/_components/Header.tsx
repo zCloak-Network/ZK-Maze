@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { useImperativeHandle, forwardRef, useEffect, useState } from "react";
 import {
   useSwitchNetwork,
@@ -98,7 +99,7 @@ const Header = forwardRef((_props, ref) => {
           }
         })
         .catch((err) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           toast.error(err?.message || "fetch fail!");
         })
         .finally(() => {

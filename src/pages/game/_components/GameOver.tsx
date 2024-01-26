@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
+
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { BaseError, ContractFunctionRevertedError } from "viem";
@@ -179,7 +180,6 @@ export const GameOver = ({
                   }
                 })
                 .catch(() => {
-                  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                   reject("contract send error");
                 });
             } catch (err) {
