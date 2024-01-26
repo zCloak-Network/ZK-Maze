@@ -89,7 +89,7 @@ const Header = forwardRef((_props, ref) => {
           param: data,
         });
     }
-  }, [isContractSuccess, data]);
+  }, [isContractSuccess, data, dispatch]);
 
   useImperativeHandle(
     ref,

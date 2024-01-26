@@ -58,7 +58,7 @@ export const GameOver = ({
       console.log("onRefresh contractResult", contractResult);
       onRefresh?.();
     }
-  }, [contractResult]);
+  }, [contractResult, onRefresh]);
 
   const SettlementProgress = [
     {
@@ -68,7 +68,7 @@ export const GameOver = ({
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve(true);
-          }, 200);
+          }, 0);
         });
       },
     },
