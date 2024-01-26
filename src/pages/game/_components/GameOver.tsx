@@ -68,7 +68,7 @@ export const GameOver = ({
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve(true);
-          }, 0);
+          }, 100);
         });
       },
     },
@@ -80,7 +80,7 @@ export const GameOver = ({
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve(true);
-          }, 0);
+          }, 100);
         });
       },
     },
@@ -239,6 +239,7 @@ export const GameOver = ({
           setErrorMsg(err);
         });
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 

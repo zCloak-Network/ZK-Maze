@@ -30,6 +30,7 @@ import Header from "./Header";
 import { Tip } from "./Tip";
 import { Description } from "./Description";
 import { getMap } from "@/api/zkp";
+import { toast } from "react-toastify";
 
 export const Game = () => {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -42,8 +43,8 @@ export const Game = () => {
 
   useEffect(() => {
     console.log("Game run");
-    void Promise.all([getMap(), Assets.load("/spritesheet.json")]).then(
-      ([mapInfo, sheet]) => {
+    void Promise.all([getMap(), Assets.load("/spritesheet.json")])
+      .then(([mapInfo, sheet]) => {
         setLoading(false);
         if (!mapInfo.data) {
           return console.error("get map fail");
@@ -231,13 +232,16 @@ export const Game = () => {
               }
             }
           }
-
-          gameOver && setGameOver(true);
+          if (gameOver) {
+            setGameOver(true);
+          }
         };
 
         app.current.ticker.add(gameLoop);
-      }
-    );
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
 
     return () => {
       // TODO
@@ -248,6 +252,7 @@ export const Game = () => {
   }, []);
 
   const reStartGame = () => {
+    // window.location.reload();
     const { StartPosition } = gameState;
     if (gameState.character) {
       gameState.character.x = StartPosition.x * CellSize;
