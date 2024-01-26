@@ -54,7 +54,7 @@ const Header = forwardRef((_props, ref) => {
     if (
       String(selectedNetworkId) === String(Chain.id) &&
       !isBalanceLoading &&
-      balanceData
+      !(Number(balanceData?.value || 0) < 2000000000000000n)
     ) {
       console.log("game is ready", balanceData);
       dispatchGameState &&

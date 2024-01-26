@@ -39,6 +39,7 @@ export const Game = () => {
   const [gameIsOver, setGameOver] = useState(false);
 
   useEffect(() => {
+    console.log("Game run");
     void Promise.all([getMap(), Assets.load("/spritesheet.json")]).then(
       ([mapInfo, sheet]) => {
         setLoading(false);
