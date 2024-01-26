@@ -11,7 +11,7 @@ export default function GamePage() {
       setIsconnected(true);
     },
     onDisconnect() {
-      setIsconnected(false);
+      window.location.reload();
     },
   });
 
