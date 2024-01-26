@@ -90,9 +90,9 @@ const Header = forwardRef((_props, ref) => {
         .then((res) => {
           if (res.data.txHash) {
             toast.success("Send ETH Success!");
-            window.open(
-              `${Chain.blockExplorers.default.url}/tx/${res.data.txHash}`
-            );
+            // window.open(
+            //   `${Chain.blockExplorers.default.url}/tx/${res.data.txHash}`
+            // );
           } else {
             toast.error("api error!");
           }
