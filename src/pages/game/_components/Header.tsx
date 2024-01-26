@@ -54,6 +54,9 @@ const Header = forwardRef((_props, ref) => {
           },
         });
     } else {
+      if (String(selectedNetworkId) !== String(Chain.id)) {
+        switchChain?.({ chainId: Chain.id });
+      }
       console.log("game is lock");
       dispatchGameState &&
         dispatchGameState({
@@ -63,7 +66,7 @@ const Header = forwardRef((_props, ref) => {
           },
         });
     }
-  }, [selectedNetworkId, isBalanceLoading, balanceData]);
+  }, [selectedNetworkId, isBalanceLoading, balanceData, switchChain]);
 
   const {
     data,
