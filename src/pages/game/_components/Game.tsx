@@ -5,6 +5,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import {
+  Spritesheet,
   Application,
   Sprite,
   Assets,
@@ -38,10 +39,14 @@ export const Game = () => {
   const { bindKey } = keystrokes as unknown as Keystrokes;
   const [gameIsOver, setGameOver] = useState(false);
 
+  let app: Application;
+  let thisSheet: Spritesheet;
+
   useEffect(() => {
     console.log("Game run");
     void Promise.all([getMap(), Assets.load("/spritesheet.json")]).then(
       ([mapInfo, sheet]) => {
+        thisSheet = sheet;
         setLoading(false);
         if (!mapInfo.data) {
           return console.error("get map fail");
@@ -53,7 +58,7 @@ export const Game = () => {
         const StageWidthCells = Map[0].length;
         const StageHeight = StageHeightCells * CellSize;
         const StageWidth = StageWidthCells * CellSize;
-        const app = new Application({ width: StageWidth, height: StageHeight });
+        app = new Application({ width: StageWidth, height: StageHeight });
         wrapRef.current?.appendChild(app.view as HTMLCanvasElement);
 
         const gameScene = new Container();
@@ -234,6 +239,13 @@ export const Game = () => {
       }
     );
 
+    return () => {
+      // TODO
+      console.log("game unload");
+      app.ticker.destroy();
+      app.stage.destroy();
+      thisSheet && thisSheet.destroy();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
