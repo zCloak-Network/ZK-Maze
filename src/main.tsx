@@ -2,7 +2,7 @@ import ReactDOM from "react-dom/client";
 import "./assets/global.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import rootRoute from "./pages";
-import { WagmiRoot, ToastRoot } from "./hooks";
+import { Web3Modal, ToastRoot } from "./hooks";
 import { StoreProvider } from "@/store";
 
 const router = createBrowserRouter(rootRoute, {
@@ -11,9 +11,9 @@ const router = createBrowserRouter(rootRoute, {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <StoreProvider>
-    <WagmiRoot>
+    <Web3Modal>
       <ToastRoot />
       <RouterProvider router={router} />
-    </WagmiRoot>
+    </Web3Modal>
   </StoreProvider>
 );

@@ -1,8 +1,26 @@
 import { CellSize, TextureType, Step, animationSpeed } from "./config";
 import { Sprite, AnimatedSprite, Container } from "pixi.js";
-import { L3, L3Dev } from "@/constants";
-
-export const Azeroth = import.meta.env.MODE === "production" ? L3 : L3Dev;
+import { arbitrumSepolia } from "wagmi/chains";
+export const Chain = {
+  ...arbitrumSepolia,
+  blockExplorers: {
+    default: {
+      name: "arbiscan",
+      url: "https://sepolia.arbiscan.io",
+    },
+  },
+};
+// import.meta.env.MODE === "production"
+//   ? arbitrum
+//   : {
+//       ...arbitrumSepolia,
+//       blockExplorers: {
+//         default: {
+//           name: "arbiscan",
+//           url: "https://sepolia.arbiscan.io",
+//         },
+//       },
+//     };
 
 // 检测坐标系中的点是否越界
 export function isOutOfBound(Map: TextureType[][], point: Step) {

@@ -1,15 +1,28 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
+import { BaseError, ContractFunctionRevertedError } from "viem";
+import { useWaitForTransactionReceipt } from "wagmi";
 import { useState, useEffect } from "react";
 import FileSaver from "file-saver";
 import { generatePublicInput, gameState } from "../_utils";
-import { PROGRAM_STRING, ABI, RESULT_MAP, RESULT_COLOR_MAP } from "@/constants";
-import { Azeroth } from "../_utils";
+import {
+  PROGRAM_STRING,
+  ABI,
+  RESULT_MAP,
+  RESULT_COLOR_MAP,
+  idlFactory,
+} from "@/constants";
+import { Chain } from "../_utils";
 import * as myWorker from "../_utils/zkpWorker.ts";
-import { upload } from "@/api/zkp.ts";
-import { useContractWrite } from "wagmi";
+import { useWriteContract } from "wagmi";
 import { useStateStore } from "@/store";
+import fetch from "isomorphic-fetch";
+import { Actor, HttpAgent } from "@dfinity/agent";
+
+const agent = new HttpAgent({ fetch, host: "https://ic0.app" });
+
+const canisterId = import.meta.env.VITE_APP_CANISTERID;
+const actor = Actor.createActor(idlFactory, { agent, canisterId });
 
 const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
 
@@ -24,18 +37,28 @@ export const GameOver = ({
   const [step, setStep] = useState(0);
   const [zkpResult, setZkpResult] = useState<string | undefined>();
   const [publicInput, setPublicInput] = useState<string | undefined>();
-  const [zkpURL, setZkpURL] = useState<string | undefined>();
   const [programHash, setProgramHash] = useState<string | undefined>();
-  const [transactionHash, setTransactionHash] = useState<string | undefined>();
+  const [transactionHash, setTransactionHash] = useState<
+    `0x${string}` | undefined
+  >();
+  const [signature, setSignature] = useState<string | undefined>();
+  const [publicInputHash, setPublicInputHash] = useState<string | undefined>();
+  const [outputVec, setOutputVec] = useState<string | undefined>();
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
   const { gameResult } = useStateStore();
 
-  const { writeAsync } = useContractWrite({
-    address: ContractAddress,
-    abi: ABI,
-    functionName: "uploadZKSolution",
-    chainId: Azeroth.id,
+  const { writeContractAsync } = useWriteContract();
+
+  const contractResult = useWaitForTransactionReceipt({
+    hash: transactionHash,
   });
+
+  useEffect(() => {
+    if (contractResult?.status === "success") {
+      console.log("onRefresh contractResult", contractResult);
+      onRefresh?.();
+    }
+  }, [contractResult, onRefresh]);
 
   const SettlementProgress = [
     {
@@ -45,7 +68,7 @@ export const GameOver = ({
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve(true);
-          }, 200);
+          }, 100);
         });
       },
     },
@@ -57,13 +80,13 @@ export const GameOver = ({
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve(true);
-          }, 0);
+          }, 100);
         });
       },
     },
     {
       prefix: ">",
-      content: "1/4 Generate ZKP",
+      content: "1/4 Generate Zero Knowledge Proof locally",
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
@@ -105,27 +128,24 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "2/4 Upload ZKP",
+      content: "2/4 Verify proof on decentralized network",
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
           if (zkpResult) {
-            const file = new File(
-              [zkpResult],
-              `zkp-${new Date().getTime()}.json`,
-              {
-                type: "application/json",
-              }
-            );
-            const formData = new FormData();
-            formData.append("file", file);
-            upload(formData)
+            console.log("2/4:", programHash, publicInput, zkpResult);
+            actor
+              .zk_verify(programHash, publicInput, zkpResult)
               .then((res) => {
-                if (res && res.data) {
-                  setZkpURL(res.data);
+                console.log(res);
+                if (Array.isArray(res) && res.length === 3) {
+                  const [canister_Signature, publicInputHash, outputVec] = res;
+                  setSignature(canister_Signature);
+                  setPublicInputHash(publicInputHash);
+                  setOutputVec(outputVec);
                   resolve(true);
                 } else {
-                  reject("upload error!");
+                  reject(false);
                 }
               })
               .catch(reject);
@@ -135,29 +155,55 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "3/4 ZK verification",
+      content: "3/4 Write verification on Arbitrum blockchain",
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
-          if (typeof writeAsync === "function") {
-            // console.log("writeAsync:", programHash, publicInput, zkpURL);
-            void writeAsync({
-              args: [programHash, publicInput, zkpURL],
-            })
-              .then((res) => {
-                console.log("writeAsync get", res);
-                if (res.hash) {
-                  setTransactionHash(res.hash);
-                  onRefresh?.();
-                  resolve(true);
-                } else {
-                  reject("contract fetch error");
-                }
+          if (typeof writeContractAsync === "function") {
+            console.log(
+              "3/4:",
+              `0x${signature}`,
+              programHash,
+              publicInputHash,
+              outputVec
+            );
+            try {
+              void writeContractAsync({
+                address: ContractAddress,
+                abi: ABI,
+                functionName: "verifyECDSASignature",
+                chainId: Chain.id,
+                args: [
+                  `0x${signature}`,
+                  programHash,
+                  publicInputHash,
+                  outputVec,
+                ],
               })
-              .catch(() => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                reject("contract send error");
-              });
+                .then((hash) => {
+                  console.log("writeContractAsync get", hash);
+                  if (hash) {
+                    setTransactionHash(hash);
+
+                    resolve(true);
+                  } else {
+                    reject("contract fetch error");
+                  }
+                })
+                .catch(() => {
+                  reject("contract send error");
+                });
+            } catch (err) {
+              if (err instanceof BaseError) {
+                const revertError = err.walk(
+                  (err) => err instanceof ContractFunctionRevertedError
+                );
+                if (revertError instanceof ContractFunctionRevertedError) {
+                  const errorName = revertError.data?.errorName ?? "";
+                  console.log(errorName);
+                }
+              }
+            }
           } else {
             reject("contract init error");
           }
@@ -166,13 +212,13 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "4/4 Done!",
+      content: "4/4 Determination of achievement on chain",
       class: "text-success",
       run: () => {
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve(true);
-          }, 100);
+          }, 1000);
         });
       },
     },
@@ -193,6 +239,7 @@ export const GameOver = ({
           setErrorMsg(err);
         });
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
@@ -240,7 +287,7 @@ export const GameOver = ({
               className="rounded-none text-success btn btn-xs btn-ghost"
               onClick={() =>
                 window.open(
-                  `${Azeroth.blockExplorers.default.url}/tx/${transactionHash}`
+                  `${Chain.blockExplorers.default.url}/tx/${transactionHash}`
                 )
               }
             >

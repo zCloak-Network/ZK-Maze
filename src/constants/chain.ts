@@ -1,9 +1,8 @@
-import { Chain } from "wagmi";
+import { Chain } from "wagmi/chains";
 
 export const L3 = {
   id: 76297047005,
   name: "Azeroth",
-  network: "Azeroth",
   nativeCurrency: {
     decimals: 18,
     name: "ETH",
@@ -24,7 +23,6 @@ export const L3 = {
 export const L3Dev = {
   id: 76297047005,
   name: "Azeroth",
-  network: "Azeroth",
   nativeCurrency: {
     decimals: 18,
     name: "ETH",

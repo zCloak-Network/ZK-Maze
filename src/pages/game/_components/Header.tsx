@@ -1,36 +1,49 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { useImperativeHandle, forwardRef, useEffect, useState } from "react";
 import {
-  useSwitchNetwork,
-  useContractRead,
+  useSwitchChain,
+  useReadContract,
   useAccount,
   useBalance,
+  useBlockNumber,
 } from "wagmi";
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
 import { useDispatchStore } from "@/store";
-import { ABI, RESULT_MAP, RESULT_COLOR_MAP, L3, L3Dev } from "@/constants";
-import { dispatch as dispatchGameState } from "../_utils";
+import { ABI, RESULT_MAP, RESULT_COLOR_MAP } from "@/constants";
+import { dispatch as dispatchGameState, Chain } from "../_utils";
 import { getETH } from "@/api/zkp";
 import { toast } from "react-toastify";
+import { useQueryClient } from "@tanstack/react-query";
 
-const Chain = import.meta.env.MODE === "development" ? L3Dev : L3;
 const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
 
 // eslint-disable-next-line react/display-name
 const Header = forwardRef((_props, ref) => {
+  const queryClient = useQueryClient();
+  const { data: blockNumber } = useBlockNumber({ watch: true });
+
   const dispatch = useDispatchStore();
 
   const { selectedNetworkId } = useWeb3ModalState();
-  const { error, isLoading, switchNetwork } = useSwitchNetwork();
-  const { address, isConnected } = useAccount();
-  const { data: balanceData, isLoading: isBalanceLoading } = useBalance({
+  const { error, isPending, switchChain } = useSwitchChain();
+  const { address } = useAccount();
+  const {
+    data: balanceData,
+    isLoading: isBalanceLoading,
+    queryKey,
+  } = useBalance({
     address,
   });
+
+  useEffect(() => {
+    void queryClient.invalidateQueries({ queryKey });
+  }, [blockNumber, queryClient, queryKey]);
 
   useEffect(() => {
     if (
       String(selectedNetworkId) === String(Chain.id) &&
       !isBalanceLoading &&
-      balanceData
+      !(Number(balanceData?.value || 0) < 2000000000000000n)
     ) {
       console.log("game is ready", balanceData);
       dispatchGameState &&
@@ -41,6 +54,9 @@ const Header = forwardRef((_props, ref) => {
           },
         });
     } else {
+      if (String(selectedNetworkId) !== String(Chain.id)) {
+        switchChain?.({ chainId: Chain.id });
+      }
       console.log("game is lock");
       dispatchGameState &&
         dispatchGameState({
@@ -50,26 +66,30 @@ const Header = forwardRef((_props, ref) => {
           },
         });
     }
-  }, [selectedNetworkId, isBalanceLoading, balanceData]);
+  }, [selectedNetworkId, isBalanceLoading, balanceData, switchChain]);
 
   const {
     data,
-    isLoading: isContractLoading,
+    isPending: isContractLoading,
+    isSuccess: isContractSuccess,
     refetch,
-  } = useContractRead({
+  } = useReadContract({
     address: ContractAddress,
     abi: ABI,
     functionName: "checkUserAchievement",
     args: [address],
-    onSuccess: (data) => {
-      console.log("useContractRead", data);
+  });
+
+  useEffect(() => {
+    if (isContractSuccess) {
+      console.log("useReadContract", data);
       dispatch &&
         dispatch({
           type: "update",
           param: data,
         });
-    },
-  });
+    }
+  }, [isContractSuccess, data, dispatch]);
 
   useImperativeHandle(
     ref,
@@ -78,7 +98,7 @@ const Header = forwardRef((_props, ref) => {
         refetch,
       };
     },
-    []
+    [refetch]
   );
 
   const [sendETHLoading, setSendETHLoading] = useState(false);
@@ -89,9 +109,17 @@ const Header = forwardRef((_props, ref) => {
         ethAddress: address,
       })
         .then((res) => {
-          console.log(res);
+          if (res.data.txHash) {
+            toast.success("Send ETH Success!");
+            // window.open(
+            //   `${Chain.blockExplorers.default.url}/tx/${res.data.txHash}`
+            // );
+          } else {
+            toast.error("api error!");
+          }
         })
         .catch((err) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
           toast.error(err?.message || "fetch fail!");
         })
         .finally(() => {
@@ -149,10 +177,10 @@ const Header = forwardRef((_props, ref) => {
             </div>
           </div>
         </div>
-        <w3m-button />
+        <w3m-button balance={"hide"} />
       </header>
 
-      {isConnected && String(selectedNetworkId) !== String(Chain.id) && (
+      {String(selectedNetworkId) !== String(Chain.id) && (
         <div className="wrap">
           <div role="alert" className="alert ">
             <svg
@@ -175,10 +203,10 @@ const Header = forwardRef((_props, ref) => {
             <div>
               <button
                 className="btn btn-primary btn-sm"
-                disabled={isLoading}
-                onClick={() => switchNetwork?.(Chain.id)}
+                disabled={isPending}
+                onClick={() => switchChain?.({ chainId: Chain.id })}
               >
-                {isLoading ? "switching" : "switch network"}
+                {isPending ? "switching" : "switch network"}
               </button>
             </div>
           </div>
@@ -203,7 +231,7 @@ const Header = forwardRef((_props, ref) => {
         </div>
       )}
       {String(selectedNetworkId) === String(Chain.id) &&
-        Number(balanceData?.value || 0) <= 100 && (
+        Number(balanceData?.value || 0) < 2000000000000000n && (
           <div className="wrap">
             <div role="alert" className="mt-2 alert">
               <svg

@@ -30,6 +30,7 @@ import Header from "./Header";
 import { Tip } from "./Tip";
 import { Description } from "./Description";
 import { getMap } from "@/api/zkp";
+import { toast } from "react-toastify";
 
 export const Game = () => {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -38,9 +39,12 @@ export const Game = () => {
   const { bindKey } = keystrokes as unknown as Keystrokes;
   const [gameIsOver, setGameOver] = useState(false);
 
+  const app = useRef<Application>();
+
   useEffect(() => {
-    void Promise.all([getMap(), Assets.load("/spritesheet.json")]).then(
-      ([mapInfo, sheet]) => {
+    console.log("Game run");
+    void Promise.all([getMap(), Assets.load("/spritesheet.json")])
+      .then(([mapInfo, sheet]) => {
         setLoading(false);
         if (!mapInfo.data) {
           return console.error("get map fail");
@@ -52,11 +56,14 @@ export const Game = () => {
         const StageWidthCells = Map[0].length;
         const StageHeight = StageHeightCells * CellSize;
         const StageWidth = StageWidthCells * CellSize;
-        const app = new Application({ width: StageWidth, height: StageHeight });
-        wrapRef.current?.appendChild(app.view as HTMLCanvasElement);
+        app.current = new Application({
+          width: StageWidth,
+          height: StageHeight,
+        });
+        wrapRef.current?.appendChild(app.current.view as HTMLCanvasElement);
 
         const gameScene = new Container();
-        app.stage.addChild(gameScene);
+        app.current.stage.addChild(gameScene);
 
         // map
         const land = new TilingSprite(
@@ -225,18 +232,27 @@ export const Game = () => {
               }
             }
           }
-
-          gameOver && setGameOver(true);
+          if (gameOver) {
+            setGameOver(true);
+          }
         };
 
-        app.ticker.add(gameLoop);
-      }
-    );
+        app.current.ticker.add(gameLoop);
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
 
+    return () => {
+      // TODO
+      console.log("game unload");
+      app.current?.destroy();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const reStartGame = () => {
+    // window.location.reload();
     const { StartPosition } = gameState;
     if (gameState.character) {
       gameState.character.x = StartPosition.x * CellSize;
