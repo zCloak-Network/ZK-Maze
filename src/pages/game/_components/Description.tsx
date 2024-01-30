@@ -10,18 +10,15 @@ export const Description = () => {
         <div className="collapse-content bg-primary text-primary-content peer-checked:bg-white peer-checked:text-secondary-content">
           <div className=" p-4 border-t border-base-300 w-[280px] text-sm">
             <p className="mb-2">
-              1. Use the WASD keys or the arrow keys to control the movement of
-              your character.
+              1. Control your character with W A S D or ⬆️ ⬇️ ⬅️ ➡️
             </p>
             <p className="mb-2">
-              2. If you find this path impressive, you can anonymize your route
-              through the ZK method. We will use the ZK program to determine
-              whether you qualify for the achievement.
+              2. Showcase your impressive path anonymously using the ZK method.
+              We'll verify your achievement eligibility with the ZK program.
             </p>
             <h2 className="font-bold mb-2">Achievement</h2>
-            <p>
-              "Efficiency First": Escape the maze by taking the shortest path.
-            </p>
+            <p>“Maze Navigator" - Escaped the maze</p>
+            <p>"Shortcut Genius" - Escaped the maze in the shortest path</p>
           </div>
         </div>
       </div>
