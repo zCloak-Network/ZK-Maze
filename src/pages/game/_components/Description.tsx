@@ -17,9 +17,8 @@ export const Description = () => {
               We'll verify your achievement eligibility with the ZK program.
             </p>
             <h2 className="font-bold mb-2">Achievement</h2>
-            <p>
-              "Efficiency First": Escape the maze by taking the shortest path.
-            </p>
+            <p>“Maze Navigator" - Escaped the maze</p>
+            <p>"Shortcut Genius" - Escaped the maze in the shortest path</p>
           </div>
         </div>
       </div>
