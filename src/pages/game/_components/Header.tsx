@@ -43,7 +43,7 @@ const Header = forwardRef((_props, ref) => {
     if (
       String(selectedNetworkId) === String(Chain.id) &&
       !isBalanceLoading &&
-      !(Number(balanceData?.value || 0) < 2000000000000000n)
+      !(Number(balanceData?.value || 0) < 300000000000000n)
     ) {
       console.log("game is ready", balanceData);
       dispatchGameState &&
@@ -231,7 +231,7 @@ const Header = forwardRef((_props, ref) => {
         </div>
       )}
       {String(selectedNetworkId) === String(Chain.id) &&
-        Number(balanceData?.value || 0) < 2000000000000000n && (
+        Number(balanceData?.value || 0) < 300000000000000n && (
           <div className="wrap">
             <div role="alert" className="mt-2 alert">
               <svg
