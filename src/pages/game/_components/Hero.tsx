@@ -16,10 +16,9 @@ export const Hero = () => {
         <div className="max-w-md">
           <h1 className="font-bold mb-5 text-5xl">ZK Maze</h1>
           <p className="mb-5">
-            Find a path, navigate through various obstacles, and escape the
-            maze. If you want to achieve success, you'll need to strategically
-            plan your route and discover the shortest path to exit the maze. Are
-            all you adventurers ready? Let's get started.
+            In this maze game, wit and strategy are your tools. Find the
+            shortest path, skillfully avoid obstacles, and victory is within
+            reach. Ready? Adventure is calling!
           </p>
           {/* <ButtonEnable /> */}
           <button className="btn btn-primary" onClick={() => void open()}>

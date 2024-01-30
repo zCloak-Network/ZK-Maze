@@ -9,7 +9,12 @@ import {
 } from "wagmi";
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
 import { useDispatchStore } from "@/store";
-import { ABI, RESULT_MAP, RESULT_COLOR_MAP } from "@/constants";
+import {
+  ABI,
+  RESULT_MAP,
+  RESULT_COLOR_MAP,
+  RESULT_DESCRIPTION,
+} from "@/constants";
 import { dispatch as dispatchGameState, Chain } from "../_utils";
 import { getETH } from "@/api/zkp";
 import { toast } from "react-toastify";
@@ -135,48 +140,52 @@ const Header = forwardRef((_props, ref) => {
         <div className="font-semibold flex-1 text-primary text-2xl">
           ZK Maze
         </div>
-        <div className="flex h-full w-full top-0 left-0 justify-center items-center absolute">
-          <div
-            className="tooltip tooltip-bottom tooltip-accent"
-            data-tip="Haven't Played < Done < Efficiency First"
-          >
-            <div className="cursor-pointer stats">
-              {isContractLoading ? (
-                <span>loading</span>
-              ) : (
-                <div className="py-2 stat">
-                  <div
-                    className={
-                      "stat-figure text-" + RESULT_COLOR_MAP[Number(data)] || ""
-                    }
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      className="h-8 stroke-current w-8 inline-block"
+        {Number(data) !== 0 ? (
+          <div className="flex h-full w-full top-0 left-0 justify-center items-center absolute">
+            <div
+              className="tooltip tooltip-bottom tooltip-accent"
+              data-tip={RESULT_DESCRIPTION[Number(data)]}
+            >
+              <div className="cursor-pointer stats">
+                {isContractLoading ? (
+                  <span>loading</span>
+                ) : (
+                  <div className="py-2 stat">
+                    <div
+                      className={
+                        "stat-figure text-" + RESULT_COLOR_MAP[Number(data)] ||
+                        ""
+                      }
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M13 10V3L4 14h7v7l9-11h-7z"
-                      ></path>
-                    </svg>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        className="h-8 stroke-current w-8 inline-block"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        ></path>
+                      </svg>
+                    </div>
+                    <div className="stat-title">Your Achievement</div>
+                    <div
+                      className={
+                        "stat-value text-" + RESULT_COLOR_MAP[Number(data)] ||
+                        ""
+                      }
+                    >
+                      {RESULT_MAP[Number(data)] || "--"}
+                    </div>
                   </div>
-                  <div className="stat-title">Your Achievement</div>
-                  <div
-                    className={
-                      "stat-value text-" + RESULT_COLOR_MAP[Number(data)] || ""
-                    }
-                  >
-                    {RESULT_MAP[Number(data)] || "--"}
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        ) : null}
         <w3m-button balance={"hide"} />
       </header>
 
@@ -248,8 +257,9 @@ const Header = forwardRef((_props, ref) => {
                 ></path>
               </svg>
               <span className="text-sm">
-                Your balance({balanceData?.formatted || 0}
-                {balanceData?.symbol}) is not enough!
+                Minimum 0.0002 ETH required. Your balance: (
+                {balanceData?.formatted || 0}
+                {balanceData?.symbol})
               </span>
               <div>
                 <button
