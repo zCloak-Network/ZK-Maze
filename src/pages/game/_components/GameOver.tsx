@@ -154,6 +154,7 @@ export const GameOver = ({
     },
     {
       prefix: "$",
+      hideLoading: true,
       content: (
         <>
           Verify result to Arbitrum Sepolia blockchain?
@@ -361,7 +362,7 @@ export const GameOver = ({
               className={errorMsg && step === index ? " text-error" : log.class}
               key={index}
             >
-              {step === index && !errorMsg && (
+              {step === index && !errorMsg && !log.hideLoading && (
                 <span className="loading loading-ball loading-xs"></span>
               )}
               <code>{log.content}</code>
