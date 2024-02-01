@@ -198,10 +198,18 @@ export const GameOver = ({
           >
             [Yes]
           </button>
+          <button
+            className="rounded-none text-success btn btn-xs btn-ghost"
+            onClick={() => {}}
+          >
+            [No]
+          </button>
         </>
       ),
       class: "text-warning",
-      run: () => {},
+      run: () => {
+        return new Promise((resolve) => resolve(true));
+      },
     },
     {
       prefix: ">",
