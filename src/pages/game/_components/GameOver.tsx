@@ -89,7 +89,7 @@ export const GameOver = ({
   const SettlementProgress = [
     {
       prefix: "$",
-      content: "Game completed!",
+      content: ["Game completed!"],
       run: () => {
         return new Promise((resolve) => {
           setTimeout(() => {
@@ -100,7 +100,7 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "Settlement in progress...",
+      content: ["Settlement in progress..."],
       class: "text-warning",
       run: () => {
         return new Promise((resolve) => {
@@ -112,7 +112,7 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "Generate Zero Knowledge Proof locally",
+      content: ["Generate Zero Knowledge Proof locally"],
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
@@ -155,9 +155,9 @@ export const GameOver = ({
     {
       prefix: "$",
       hideLoading: true,
-      content: (
+      content: [
+        "Post game result to Arbitrum Sepolia?",
         <>
-          Verify result to Arbitrum Sepolia blockchain?
           {userSelect.current !== false && (
             <button
               className="rounded-none text-warning btn btn-xs btn-ghost"
@@ -181,8 +181,8 @@ export const GameOver = ({
               [No]
             </button>
           )}
-        </>
-      ),
+        </>,
+      ],
       class: "",
       run: () => {
         return new Promise((resolve, reject) => {
@@ -200,9 +200,9 @@ export const GameOver = ({
     },
     {
       prefix: "$",
-      content: (
+      content: [
+        "Minimum 0.002 ETH required.",
         <>
-          Minimum 0.002 ETH required.
           <button
             className="rounded-none text-warning btn btn-xs btn-ghost"
             onClick={() => {
@@ -219,8 +219,8 @@ export const GameOver = ({
           >
             [Faucet by QuickNode]
           </button>
-        </>
-      ),
+        </>,
+      ],
       class: "text-error",
       run: () => {
         return new Promise((resolve) => {
@@ -237,7 +237,7 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "Verify proof on decentralized network",
+      content: ["Verify proof on a decentralized network"],
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
@@ -264,7 +264,7 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "Write verification on Arbitrum blockchain",
+      content: ["Post verification to Arbitrum Sepolia"],
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
@@ -321,7 +321,7 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "Determination of achievement on chain",
+      content: ["Determine achievement on-chain"],
       class: "text-success",
       run: () => {
         return new Promise((resolve) => {
@@ -365,7 +365,20 @@ export const GameOver = ({
               {step === index && !errorMsg && !log.hideLoading && (
                 <span className="loading loading-ball loading-xs"></span>
               )}
-              <code>{log.content}</code>
+              {log.content.map((cont, index) => (
+                <code
+                  style={
+                    index > 0
+                      ? {
+                          display: "block",
+                          paddingLeft: "40px",
+                        }
+                      : {}
+                  }
+                >
+                  {cont}
+                </code>
+              ))}
             </pre>
           );
         })}
