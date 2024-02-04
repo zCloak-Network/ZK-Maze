@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --open",
+    "dev": "vite --port 3000 --open",
     "build:dev": "tsc && vite build --mode development && cp dist/index.html dist/404.html",
     "build": "tsc && vite build && cp dist/index.html dist/404.html",
     "lint": "eslint . --fix --ext ts,tsx --report-unused-disable-directives --max-warnings 0",

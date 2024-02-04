@@ -1,8 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { BaseError, ContractFunctionRevertedError } from "viem";
-import { useWaitForTransactionReceipt } from "wagmi";
-import { useState, useEffect } from "react";
+import {
+  useWaitForTransactionReceipt,
+  useBalance,
+  useBlockNumber,
+  useAccount,
+} from "wagmi";
+import { useState, useEffect, useRef } from "react";
 import FileSaver from "file-saver";
 import { generatePublicInput, gameState } from "../_utils";
 import {
@@ -18,6 +23,7 @@ import { useWriteContract } from "wagmi";
 import { useStateStore } from "@/store";
 import fetch from "isomorphic-fetch";
 import { Actor, HttpAgent } from "@dfinity/agent";
+import { useQueryClient } from "@tanstack/react-query";
 
 const agent = new HttpAgent({ fetch, host: "https://ic0.app" });
 
@@ -33,6 +39,22 @@ export const GameOver = ({
   onRefresh: () => void;
   onExit: () => void;
 }) => {
+  const balanceData = useRef<bigint>(0n);
+  const { address } = useAccount();
+  const { data: blockNumber } = useBlockNumber({ watch: true });
+  const { data: balance, queryKey } = useBalance({
+    address,
+  });
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    void queryClient.invalidateQueries({ queryKey });
+  }, [blockNumber, queryClient, queryKey]);
+  useEffect(() => {
+    if (balance?.value) {
+      balanceData.current = balance.value;
+    }
+  }, [balance]);
+
   const { path } = gameState;
   const [step, setStep] = useState(0);
   const [zkpResult, setZkpResult] = useState<string | undefined>();
@@ -60,10 +82,14 @@ export const GameOver = ({
     }
   }, [contractResult, onRefresh]);
 
+  const userSelect = useRef<boolean>();
+
+  const hiddenStepIndex = useRef<number[]>([]);
+
   const SettlementProgress = [
     {
       prefix: "$",
-      content: "Game completed!",
+      content: ["Game completed!"],
       run: () => {
         return new Promise((resolve) => {
           setTimeout(() => {
@@ -74,7 +100,7 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "Settlement in progress...",
+      content: ["Settlement in progress..."],
       class: "text-warning",
       run: () => {
         return new Promise((resolve) => {
@@ -86,7 +112,7 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "1/4 Generate Zero Knowledge Proof locally",
+      content: ["Generate Zero Knowledge Proof locally"],
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
@@ -127,8 +153,91 @@ export const GameOver = ({
       },
     },
     {
+      prefix: "$",
+      hideLoading: true,
+      content: [
+        "Post game result to Arbitrum Sepolia?",
+        <>
+          {userSelect.current !== false && (
+            <button
+              className="rounded-none text-warning btn btn-xs btn-ghost"
+              disabled={userSelect.current !== undefined}
+              onClick={() => {
+                userSelect.current === undefined && (userSelect.current = true);
+              }}
+            >
+              [Yes]
+            </button>
+          )}
+          {userSelect.current !== true && (
+            <button
+              className="rounded-none text-warning btn btn-xs btn-ghost"
+              disabled={userSelect.current !== undefined}
+              onClick={() => {
+                userSelect.current === undefined &&
+                  (userSelect.current = false);
+              }}
+            >
+              [No]
+            </button>
+          )}
+        </>,
+      ],
+      class: "",
+      run: () => {
+        return new Promise((resolve, reject) => {
+          const timer = setInterval(() => {
+            if (userSelect.current === true) {
+              clearInterval(timer);
+              resolve(true);
+            } else if (userSelect.current === false) {
+              clearInterval(timer);
+              reject(`User Cancel!`);
+            }
+          }, 200);
+        });
+      },
+    },
+    {
+      prefix: "$",
+      content: [
+        "Minimum 0.002 ETH required.",
+        <>
+          <button
+            className="rounded-none text-warning btn btn-xs btn-ghost"
+            onClick={() => {
+              window.open("https://arbitrum-faucet.com/");
+            }}
+          >
+            [Faucet by Alchemy]
+          </button>
+          <button
+            className="rounded-none text-warning btn btn-xs btn-ghost"
+            onClick={() => {
+              window.open("https://faucet.quicknode.com/arbitrum/sepolia/");
+            }}
+          >
+            [Faucet by QuickNode]
+          </button>
+        </>,
+      ],
+      class: "text-error",
+      run: () => {
+        return new Promise((resolve) => {
+          const timer = setInterval(() => {
+            console.log("balance=", balanceData.current);
+            if (balanceData.current > 2000000000000000n) {
+              hiddenStepIndex.current = [4];
+              clearInterval(timer);
+              resolve(true);
+            }
+          }, 1000);
+        });
+      },
+    },
+    {
       prefix: ">",
-      content: "2/4 Verify proof on decentralized network",
+      content: ["Verify proof on a decentralized network"],
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
@@ -155,7 +264,7 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "3/4 Write verification on Arbitrum blockchain",
+      content: ["Post verification to Arbitrum Sepolia"],
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
@@ -212,7 +321,7 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: "4/4 Determination of achievement on chain",
+      content: ["Determine achievement on-chain"],
       class: "text-success",
       run: () => {
         return new Promise((resolve) => {
@@ -246,18 +355,33 @@ export const GameOver = ({
   return (
     <div className="flex flex-col h-full text-white w-full p-4 top-0 left-0 absolute justify-center items-center">
       <div className="bg-base-100 text-base-content min-h-20 mockup-code">
-        {SettlementProgress.slice(0, step + 1).map((log, index) => (
-          <pre
-            data-prefix={log.prefix}
-            className={errorMsg && step === index ? " text-error" : log.class}
-            key={index}
-          >
-            {step === index && !errorMsg && (
-              <span className="loading loading-ball loading-xs"></span>
-            )}
-            <code>{log.content}</code>
-          </pre>
-        ))}
+        {SettlementProgress.slice(0, step + 1).map((log, index) => {
+          return hiddenStepIndex.current.includes(index) ? null : (
+            <pre
+              data-prefix={log.prefix}
+              className={errorMsg && step === index ? " text-error" : log.class}
+              key={index}
+            >
+              {step === index && !errorMsg && !log.hideLoading && (
+                <span className="loading loading-ball loading-xs"></span>
+              )}
+              {log.content.map((cont, index) => (
+                <code
+                  style={
+                    index > 0
+                      ? {
+                          display: "block",
+                          paddingLeft: "40px",
+                        }
+                      : {}
+                  }
+                >
+                  {cont}
+                </code>
+              ))}
+            </pre>
+          );
+        })}
 
         {SettlementOver && (
           <pre
