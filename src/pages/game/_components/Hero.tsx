@@ -31,7 +31,7 @@ export const Hero = () => {
             reach. Ready? Adventure is calling!
           </p>
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 w-[300px] m-auto">
             <button
               className="btn btn-primary"
               onClick={() => void handleConnectWallet()}
@@ -39,7 +39,7 @@ export const Hero = () => {
               Connect ArbitrumSepolia to Play
             </button>
             <button
-              className="btn btn-primary"
+              className="btn btn-accent text-white border-0 bg-[#512da8]"
               onClick={() => void handleConnectSolanaWallet()}
             >
               Connect Solana to Play

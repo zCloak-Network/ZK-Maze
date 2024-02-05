@@ -46,6 +46,15 @@ const Header = forwardRef((_props, ref) => {
             },
           });
       }
+    } else if (network === "solana") {
+      console.log("game is ready with solana");
+      dispatchGameState &&
+        dispatchGameState({
+          type: "ready",
+          param: {
+            ready: true,
+          },
+        });
     }
   }, [network, selectedNetworkId, switchChain]);
 

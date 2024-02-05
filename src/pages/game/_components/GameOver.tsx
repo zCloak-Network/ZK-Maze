@@ -24,6 +24,23 @@ import { useStateStore } from "@/store";
 import fetch from "isomorphic-fetch";
 import { Actor, HttpAgent } from "@dfinity/agent";
 import { useQueryClient } from "@tanstack/react-query";
+// solana
+import * as borsh from "borsh";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import type { TransactionSignature } from "@solana/web3.js";
+import {
+  PublicKey,
+  Transaction,
+  TransactionInstruction,
+} from "@solana/web3.js";
+const VerifyPayloadSchema: borsh.Schema = {
+  struct: {
+    program_hash: "string",
+    public_hash: "string",
+    output: { array: { type: "string" } },
+    icp_signature: { array: { type: "u8" } },
+  },
+};
 
 const agent = new HttpAgent({ fetch, host: "https://ic0.app" });
 
@@ -67,7 +84,7 @@ export const GameOver = ({
   const [publicInputHash, setPublicInputHash] = useState<string | undefined>();
   const [outputVec, setOutputVec] = useState<string | undefined>();
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
-  const { gameResult } = useStateStore();
+  const { gameResult, network } = useStateStore();
 
   const { writeContractAsync } = useWriteContract();
 
@@ -85,6 +102,10 @@ export const GameOver = ({
   const userSelect = useRef<boolean>();
 
   const hiddenStepIndex = useRef<number[]>([]);
+
+  // solana
+  const { connection } = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
 
   const SettlementProgress = [
     {
@@ -156,7 +177,7 @@ export const GameOver = ({
       prefix: "$",
       hideLoading: true,
       content: [
-        "Post game result to Arbitrum Sepolia?",
+        `Post game result to ${network}?`,
         <>
           {userSelect.current !== false && (
             <button
@@ -224,14 +245,19 @@ export const GameOver = ({
       class: "text-error",
       run: () => {
         return new Promise((resolve) => {
-          const timer = setInterval(() => {
-            console.log("balance=", balanceData.current);
-            if (balanceData.current > 2000000000000000n) {
-              hiddenStepIndex.current = [4];
-              clearInterval(timer);
-              resolve(true);
-            }
-          }, 1000);
+          if (network === "solana") {
+            hiddenStepIndex.current = [4];
+            resolve(true);
+          } else {
+            const timer = setInterval(() => {
+              console.log("balance=", balanceData.current);
+              if (balanceData.current > 2000000000000000n) {
+                hiddenStepIndex.current = [4];
+                clearInterval(timer);
+                resolve(true);
+              }
+            }, 1000);
+          }
         });
       },
     },
@@ -264,18 +290,18 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: ["Post verification to Arbitrum Sepolia"],
+      content: [`Post verification to ${network}`],
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
-          if (typeof writeContractAsync === "function") {
-            console.log(
-              "3/4:",
-              `0x${signature}`,
-              programHash,
-              publicInputHash,
-              outputVec
-            );
+          console.log(
+            "3/4:",
+            `0x${signature}`,
+            programHash,
+            publicInputHash,
+            outputVec
+          );
+          if (network === "arbitrum-sepolia") {
             try {
               void writeContractAsync({
                 address: ContractAddress,
@@ -313,8 +339,93 @@ export const GameOver = ({
                 }
               }
             }
-          } else {
-            reject("contract init error");
+          } else if (network === "solana") {
+            let signature: TransactionSignature | undefined = undefined;
+            try {
+              if (!publicKey) throw new Error("Wallet not connected!");
+              const mint = {
+                program_hash: programHash,
+                public_hash: publicInputHash,
+                output: outputVec,
+                icp_signature: new Uint8Array([
+                  0xd9, 0xb4, 0x62, 0x7e, 0xb5, 0x13, 0x11, 0xcd, 0x07, 0x21,
+                  0x8b, 0x70, 0x2c, 0x35, 0x1d, 0x0d, 0xbd, 0xe9, 0x95, 0x40,
+                  0x57, 0x00, 0x20, 0x26, 0x73, 0xbe, 0x9c, 0x20, 0x44, 0x41,
+                  0xbb, 0xbd, 0x53, 0x7a, 0x94, 0x44, 0x5e, 0xff, 0xda, 0xe3,
+                  0xd1, 0xcb, 0x75, 0x38, 0xd9, 0xc1, 0xba, 0xd5, 0xd7, 0x8d,
+                  0x97, 0x40, 0x92, 0x58, 0x67, 0x38, 0x6b, 0x4e, 0xf3, 0x5e,
+                  0x6f, 0xd2, 0x9c, 0xe1,
+                ]),
+              };
+
+              void connection.getLatestBlockhashAndContext().then((res) => {
+                const {
+                  context: { slot: minContextSlot },
+                  value: { blockhash, lastValidBlockHeight },
+                } = res;
+                const data = Buffer.from(
+                  borsh.serialize(VerifyPayloadSchema, mint)
+                );
+
+                console.log(
+                  "solana transaction",
+                  publicKey,
+                  minContextSlot,
+                  blockhash,
+                  lastValidBlockHeight,
+                  data
+                );
+                const transaction = new Transaction({
+                  feePayer: publicKey,
+                  recentBlockhash: blockhash,
+                }).add(
+                  new TransactionInstruction({
+                    data,
+                    keys: [
+                      {
+                        pubkey: publicKey,
+                        isSigner: false,
+                        isWritable: true,
+                      },
+                    ],
+                    programId: new PublicKey(
+                      "EfMghMxfMJUBh51G3u4JJGB2v1wFCHYCsBFo8Lz8QhJW"
+                    ),
+                  })
+                );
+
+                signature = void sendTransaction(transaction, connection, {
+                  minContextSlot,
+                }).then((signature) => {
+                  console.log("info", "Transaction sent:", signature);
+
+                  void connection
+                    .confirmTransaction({
+                      blockhash,
+                      lastValidBlockHeight,
+                      signature,
+                    })
+                    .then(() => {
+                      console.log(
+                        "success",
+                        "Transaction successful!",
+                        signature
+                      );
+                      resolve(true);
+                    });
+                });
+              });
+
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } catch (error: any) {
+              console.warn(
+                "error",
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                `Transaction failed! ${error?.message}`,
+                signature
+              );
+              reject(`Solana Transaction failed! `);
+            }
           }
         });
       },
