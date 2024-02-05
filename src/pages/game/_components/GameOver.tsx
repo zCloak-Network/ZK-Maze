@@ -367,6 +367,7 @@ export const GameOver = ({
               )}
               {log.content.map((cont, index) => (
                 <code
+                  key={index}
                   style={
                     index > 0
                       ? {
