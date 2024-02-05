@@ -367,14 +367,7 @@ export const GameOver = ({
                   borsh.serialize(VerifyPayloadSchema, mint)
                 );
 
-                console.log(
-                  "solana transaction",
-                  publicKey,
-                  minContextSlot,
-                  blockhash,
-                  lastValidBlockHeight,
-                  data
-                );
+                console.log("solana transaction", mint);
                 const transaction = new Transaction({
                   feePayer: publicKey,
                   recentBlockhash: blockhash,
