@@ -40,10 +40,11 @@ export const Hero = () => {
             </button>
             <div
               className="tooltip tooltip-bottom"
-              data-tip="Please switch your wallet to [Testnet Mode] and connect to Devnet first"
+              data-tip="Please switch your wallet to Devnet by selecting:
+              Settings -> Developer Settings -> Testnet Mode -> Solana Devnet"
             >
               <button
-                className="btn btn-accent text-white border-0 bg-[#512da8]"
+                className="btn btn-accent text-white border-0 bg-[#512da8] btn-block"
                 onClick={() => void handleConnectSolanaWallet()}
               >
                 Connect Solana Devnet to Play
