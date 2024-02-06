@@ -268,7 +268,7 @@ export const GameOver = ({
         return new Promise((resolve) => {
           if (network === "solana") {
             const timer = setInterval(() => {
-              getBalance().then((balanceData) => {
+              void getBalance().then((balanceData) => {
                 console.log("balance=", balanceData);
                 if (typeof balanceData === "number" && balanceData > 30000) {
                   hiddenStepIndex.current = [4];
