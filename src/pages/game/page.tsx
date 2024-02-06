@@ -23,7 +23,6 @@ export default function GamePage() {
 
   useEffect(() => {
     if (connected) {
-      console.log("solana connected", connected);
       dispatch && dispatch({ type: "network", param: "solana" });
       setIsconnected(true);
     } else if (network === "solana") {

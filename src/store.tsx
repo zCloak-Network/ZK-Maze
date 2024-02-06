@@ -13,7 +13,7 @@ export type SupportNetwork = "arbitrum-sepolia" | "solana";
 export type StoreType = {
   mapInfo: mapInfo;
   gameResult: number;
-  network: SupportNetwork;
+  network: SupportNetwork | null;
   gameStart: boolean;
 };
 
@@ -25,7 +25,7 @@ export type StoreDispatch = {
 const initialState: StoreType = {
   mapInfo: {} as mapInfo,
   gameResult: 0,
-  network: "arbitrum-sepolia",
+  network: null,
   gameStart: true,
 };
 

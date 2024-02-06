@@ -1,4 +1,4 @@
-import { useImperativeHandle, forwardRef, useEffect } from "react";
+import { useImperativeHandle, forwardRef, useEffect, useCallback } from "react";
 import { useSwitchChain, useReadContract, useAccount } from "wagmi";
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
 import { useDispatchStore, useStateStore } from "@/store";
@@ -10,6 +10,7 @@ import {
 } from "@/constants";
 import { dispatch as dispatchGameState, Chain } from "../_utils";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import useSolana from "../_utils/useSolana";
 
 const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
 
@@ -59,37 +60,67 @@ const Header = forwardRef((_props, ref) => {
   }, [network, selectedNetworkId, switchChain]);
 
   const {
-    data,
+    data: contractData,
     isPending: isContractLoading,
     isSuccess: isContractSuccess,
-    refetch,
+    refetch: refetchContract,
   } = useReadContract({
     address: ContractAddress,
     abi: ABI,
     functionName: "checkUserAchievement",
     args: [address],
+    query: {
+      enabled: network === "arbitrum-sepolia",
+    },
   });
 
   useEffect(() => {
-    if (isContractSuccess) {
-      console.log("useReadContract", data);
+    if (isContractSuccess && contractData) {
+      console.log("useReadContract", contractData);
       dispatch &&
         dispatch({
           type: "update",
-          param: data,
+          param: contractData,
         });
     }
-  }, [isContractSuccess, data, dispatch]);
+  }, [contractData, isContractSuccess]);
+
+  const {
+    data: solanaData,
+    isPending: isSolanaLoading,
+    isSuccess: isSolanaSuccess,
+    refetch: fetchSolana,
+  } = useSolana();
+
+  useEffect(() => {
+    console.log("solana read", isSolanaSuccess, solanaData);
+    if (isSolanaSuccess) {
+      dispatch &&
+        dispatch({
+          type: "update",
+          param: solanaData,
+        });
+    }
+  }, [isSolanaSuccess, solanaData]);
 
   useImperativeHandle(
     ref,
     () => {
       return {
-        refetch,
+        refetch: () => {
+          if (network === "arbitrum-sepolia") {
+            refetchContract?.();
+          } else if (network === "solana") {
+            fetchSolana?.();
+          }
+        },
       };
     },
-    [refetch]
+    [network, refetchContract, fetchSolana]
   );
+
+  const data = network === "arbitrum-sepolia" ? contractData : solanaData;
+  const isLoading = false; // network === "arbitrum-sepolia" ? isContractLoading : isSolanaLoading;
 
   return (
     <>
@@ -105,7 +136,7 @@ const Header = forwardRef((_props, ref) => {
               data-tip={RESULT_DESCRIPTION[Number(data)]}
             >
               <div className="cursor-pointer stats">
-                {isContractLoading ? (
+                {isLoading ? (
                   <span>loading</span>
                 ) : (
                   <div className="py-2 stat">

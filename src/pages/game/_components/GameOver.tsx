@@ -27,12 +27,12 @@ import { useQueryClient } from "@tanstack/react-query";
 // solana
 import * as borsh from "borsh";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import type { TransactionSignature } from "@solana/web3.js";
 import {
-  PublicKey,
-  Transaction,
+  SystemProgram,
   TransactionInstruction,
+  Transaction,
 } from "@solana/web3.js";
+import useSolana from "../_utils/useSolana.ts";
 const VerifyPayloadSchema: borsh.Schema = {
   struct: {
     program_hash: "string",
@@ -77,9 +77,7 @@ export const GameOver = ({
   const [zkpResult, setZkpResult] = useState<string | undefined>();
   const [publicInput, setPublicInput] = useState<string | undefined>();
   const [programHash, setProgramHash] = useState<string | undefined>();
-  const [transactionHash, setTransactionHash] = useState<
-    `0x${string}` | undefined
-  >();
+  const [transactionHash, setTransactionHash] = useState<string | undefined>();
   const [signature, setSignature] = useState<string | undefined>();
   const [publicInputHash, setPublicInputHash] = useState<string | undefined>();
   const [outputVec, setOutputVec] = useState<string | undefined>();
@@ -89,15 +87,8 @@ export const GameOver = ({
   const { writeContractAsync } = useWriteContract();
 
   const contractResult = useWaitForTransactionReceipt({
-    hash: transactionHash,
+    hash: transactionHash as `0x${string}`,
   });
-
-  useEffect(() => {
-    if (contractResult?.status === "success") {
-      console.log("onRefresh contractResult", contractResult);
-      onRefresh?.();
-    }
-  }, [contractResult, onRefresh]);
 
   const userSelect = useRef<boolean>();
 
@@ -106,6 +97,20 @@ export const GameOver = ({
   // solana
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
+  const { PROGRAM_ID, SEED, verifyingAccount, hasPlayed } = useSolana();
+  const [solanaContractSuccess, setSolanaContractSuccess] = useState(false);
+
+  useEffect(() => {
+    if (
+      network === "arbitrum-sepolia" &&
+      contractResult?.status === "success"
+    ) {
+      console.log("onRefresh contractResult", contractResult);
+      onRefresh?.();
+    } else if (network === "solana" && solanaContractSuccess) {
+      onRefresh?.();
+    }
+  }, [contractResult, onRefresh, solanaContractSuccess, network]);
 
   const SettlementProgress = [
     {
@@ -340,79 +345,109 @@ export const GameOver = ({
               }
             }
           } else if (network === "solana") {
-            let signature: TransactionSignature | undefined = undefined;
             try {
               if (!publicKey) throw new Error("Wallet not connected!");
               const mint = {
                 program_hash: programHash,
                 public_hash: publicInputHash,
                 output: outputVec,
-                icp_signature: new Uint8Array([
-                  0xd9, 0xb4, 0x62, 0x7e, 0xb5, 0x13, 0x11, 0xcd, 0x07, 0x21,
-                  0x8b, 0x70, 0x2c, 0x35, 0x1d, 0x0d, 0xbd, 0xe9, 0x95, 0x40,
-                  0x57, 0x00, 0x20, 0x26, 0x73, 0xbe, 0x9c, 0x20, 0x44, 0x41,
-                  0xbb, 0xbd, 0x53, 0x7a, 0x94, 0x44, 0x5e, 0xff, 0xda, 0xe3,
-                  0xd1, 0xcb, 0x75, 0x38, 0xd9, 0xc1, 0xba, 0xd5, 0xd7, 0x8d,
-                  0x97, 0x40, 0x92, 0x58, 0x67, 0x38, 0x6b, 0x4e, 0xf3, 0x5e,
-                  0x6f, 0xd2, 0x9c, 0xe1,
-                ]),
+                icp_signature: Buffer.from(`${signature}`, "hex"),
               };
 
-              void connection.getLatestBlockhashAndContext().then((res) => {
-                const {
-                  context: { slot: minContextSlot },
-                  value: { blockhash, lastValidBlockHeight },
-                } = res;
-                const data = Buffer.from(
-                  borsh.serialize(VerifyPayloadSchema, mint)
-                );
+              return connection
+                .getLatestBlockhashAndContext()
+                .then((res) => {
+                  const {
+                    context: { slot: minContextSlot },
+                    value: { blockhash, lastValidBlockHeight },
+                  } = res;
+                  const data = Buffer.from(
+                    borsh.serialize(VerifyPayloadSchema, mint)
+                  );
 
-                console.log("solana transaction", mint);
-                const transaction = new Transaction({
-                  feePayer: publicKey,
-                  recentBlockhash: blockhash,
-                }).add(
-                  new TransactionInstruction({
-                    data,
-                    keys: [
-                      {
-                        pubkey: publicKey,
-                        isSigner: false,
-                        isWritable: true,
-                      },
-                    ],
-                    programId: new PublicKey(
-                      "EfMghMxfMJUBh51G3u4JJGB2v1wFCHYCsBFo8Lz8QhJW"
-                    ),
-                  })
-                );
+                  console.log("solana transaction", mint);
 
-                signature = void sendTransaction(transaction, connection, {
-                  minContextSlot,
-                }).then((signature) => {
-                  console.log("info", "Transaction sent:", signature);
+                  const VERIFY_SIZE = borsh.serialize(
+                    VerifyPayloadSchema,
+                    mint
+                  ).length;
+                  return connection
+                    .getMinimumBalanceForRentExemption(VERIFY_SIZE)
+                    .then((lamports) => {
+                      if (!verifyingAccount) {
+                        return reject("without verifyingAccount");
+                      }
 
-                  void connection
-                    .confirmTransaction({
-                      blockhash,
-                      lastValidBlockHeight,
-                      signature,
-                    })
-                    .then(() => {
-                      console.log(
-                        "success",
-                        "Transaction successful!",
-                        signature
+                      const transaction = new Transaction({
+                        recentBlockhash: blockhash,
+                      });
+
+                      console.log("solana has played", hasPlayed);
+
+                      if (!hasPlayed) {
+                        transaction.add(
+                          SystemProgram.createAccountWithSeed({
+                            fromPubkey: publicKey,
+                            basePubkey: publicKey,
+                            seed: SEED,
+                            newAccountPubkey: verifyingAccount,
+                            lamports,
+                            space: VERIFY_SIZE,
+                            programId: PROGRAM_ID,
+                          })
+                        );
+                      }
+
+                      transaction.add(
+                        new TransactionInstruction({
+                          data,
+                          keys: [
+                            {
+                              pubkey: verifyingAccount,
+                              isSigner: false,
+                              isWritable: true,
+                            },
+                          ],
+                          programId: PROGRAM_ID,
+                        })
                       );
-                      resolve(true);
+
+                      return sendTransaction(transaction, connection, {
+                        minContextSlot,
+                      }).then((signature) => {
+                        console.log("info", "Transaction sent:", signature);
+
+                        setTransactionHash(signature);
+
+                        return connection
+                          .confirmTransaction({
+                            blockhash,
+                            lastValidBlockHeight,
+                            signature,
+                          })
+                          .then(() => {
+                            console.log(
+                              "success",
+                              "Transaction successful!",
+                              signature
+                            );
+                            setSolanaContractSuccess(true);
+                            resolve(true);
+                          });
+                      });
+                    })
+                    .catch(() => {
+                      reject("Solana Transaction failed!");
                     });
+                })
+                .catch(() => {
+                  reject("Solana Transaction failed!");
                 });
-              });
 
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
               console.warn(
-                "error",
+                "solana program error",
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 `Transaction failed! ${error?.message}`,
                 signature
