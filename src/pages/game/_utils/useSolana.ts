@@ -78,5 +78,14 @@ export default function useSolana() {
     isPending,
     isSuccess,
     hasPlayed,
+    getBalance: () => {
+      if (publicKey) {
+        return connection.getBalance(publicKey);
+      } else {
+        return new Promise((_resolve, reject) => {
+          reject("getBalance: No publicKey");
+        });
+      }
+    },
   };
 }

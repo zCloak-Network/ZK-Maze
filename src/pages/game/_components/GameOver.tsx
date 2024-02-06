@@ -97,7 +97,8 @@ export const GameOver = ({
   // solana
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
-  const { PROGRAM_ID, SEED, verifyingAccount, hasPlayed } = useSolana();
+  const { PROGRAM_ID, SEED, verifyingAccount, hasPlayed, getBalance } =
+    useSolana();
   const [solanaContractSuccess, setSolanaContractSuccess] = useState(false);
 
   useEffect(() => {
@@ -227,32 +228,55 @@ export const GameOver = ({
     {
       prefix: "$",
       content: [
-        "Minimum 0.002 ETH required.",
-        <>
-          <button
-            className="rounded-none text-warning btn btn-xs btn-ghost"
-            onClick={() => {
-              window.open("https://arbitrum-faucet.com/");
-            }}
-          >
-            [Faucet by Alchemy]
-          </button>
-          <button
-            className="rounded-none text-warning btn btn-xs btn-ghost"
-            onClick={() => {
-              window.open("https://faucet.quicknode.com/arbitrum/sepolia/");
-            }}
-          >
-            [Faucet by QuickNode]
-          </button>
-        </>,
+        network === "arbitrum-sepolia"
+          ? "Minimum 0.002 ETH required."
+          : "Minimum 0.00003 SOL required.",
+        network === "arbitrum-sepolia" ? (
+          <>
+            <button
+              className="rounded-none text-warning btn btn-xs btn-ghost"
+              onClick={() => {
+                window.open("https://arbitrum-faucet.com/");
+              }}
+            >
+              [Faucet by Alchemy]
+            </button>
+            <button
+              className="rounded-none text-warning btn btn-xs btn-ghost"
+              onClick={() => {
+                window.open("https://faucet.quicknode.com/arbitrum/sepolia/");
+              }}
+            >
+              [Faucet by QuickNode]
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              className="rounded-none text-warning btn btn-xs btn-ghost"
+              onClick={() => {
+                window.open("https://faucet.solana.com/");
+              }}
+            >
+              [Faucet by Solana]
+            </button>
+          </>
+        ),
       ],
       class: "text-error",
       run: () => {
         return new Promise((resolve) => {
           if (network === "solana") {
-            hiddenStepIndex.current = [4];
-            resolve(true);
+            const timer = setInterval(() => {
+              getBalance().then((balanceData) => {
+                console.log("balance=", balanceData);
+                if (typeof balanceData === "number" && balanceData > 30000) {
+                  hiddenStepIndex.current = [4];
+                  clearInterval(timer);
+                  resolve(true);
+                }
+              });
+            }, 1500);
           } else {
             const timer = setInterval(() => {
               console.log("balance=", balanceData.current);
@@ -261,14 +285,14 @@ export const GameOver = ({
                 clearInterval(timer);
                 resolve(true);
               }
-            }, 1000);
+            }, 1500);
           }
         });
       },
     },
     {
       prefix: ">",
-      content: ["Verify proof on a decentralized network"],
+      content: ["Verify proof on the Internet Computer"],
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
