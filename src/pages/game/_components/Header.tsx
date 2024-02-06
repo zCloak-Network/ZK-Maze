@@ -1,4 +1,4 @@
-import { useImperativeHandle, forwardRef, useEffect, useCallback } from "react";
+import { useImperativeHandle, forwardRef, useEffect } from "react";
 import { useSwitchChain, useReadContract, useAccount } from "wagmi";
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
 import { useDispatchStore, useStateStore } from "@/store";
@@ -61,7 +61,7 @@ const Header = forwardRef((_props, ref) => {
 
   const {
     data: contractData,
-    isPending: isContractLoading,
+    // isPending: isContractLoading,
     isSuccess: isContractSuccess,
     refetch: refetchContract,
   } = useReadContract({
@@ -87,7 +87,7 @@ const Header = forwardRef((_props, ref) => {
 
   const {
     data: solanaData,
-    isPending: isSolanaLoading,
+    // isPending: isSolanaLoading,
     isSuccess: isSolanaSuccess,
     refetch: fetchSolana,
   } = useSolana();
@@ -109,7 +109,7 @@ const Header = forwardRef((_props, ref) => {
       return {
         refetch: () => {
           if (network === "arbitrum-sepolia") {
-            refetchContract?.();
+            void refetchContract?.();
           } else if (network === "solana") {
             fetchSolana?.();
           }
