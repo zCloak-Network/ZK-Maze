@@ -24,6 +24,23 @@ import { useStateStore } from "@/store";
 import fetch from "isomorphic-fetch";
 import { Actor, HttpAgent } from "@dfinity/agent";
 import { useQueryClient } from "@tanstack/react-query";
+// solana
+import * as borsh from "borsh";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import {
+  SystemProgram,
+  TransactionInstruction,
+  Transaction,
+} from "@solana/web3.js";
+import useSolana from "../_utils/useSolana.ts";
+const VerifyPayloadSchema: borsh.Schema = {
+  struct: {
+    program_hash: "string",
+    public_hash: "string",
+    output: { array: { type: "string" } },
+    icp_signature: { array: { type: "u8" } },
+  },
+};
 
 const agent = new HttpAgent({ fetch, host: "https://ic0.app" });
 
@@ -60,31 +77,41 @@ export const GameOver = ({
   const [zkpResult, setZkpResult] = useState<string | undefined>();
   const [publicInput, setPublicInput] = useState<string | undefined>();
   const [programHash, setProgramHash] = useState<string | undefined>();
-  const [transactionHash, setTransactionHash] = useState<
-    `0x${string}` | undefined
-  >();
+  const [transactionHash, setTransactionHash] = useState<string | undefined>();
   const [signature, setSignature] = useState<string | undefined>();
   const [publicInputHash, setPublicInputHash] = useState<string | undefined>();
   const [outputVec, setOutputVec] = useState<string | undefined>();
   const [errorMsg, setErrorMsg] = useState<string | undefined>();
-  const { gameResult } = useStateStore();
+  const { gameResult, network } = useStateStore();
 
   const { writeContractAsync } = useWriteContract();
 
   const contractResult = useWaitForTransactionReceipt({
-    hash: transactionHash,
+    hash: transactionHash as `0x${string}`,
   });
-
-  useEffect(() => {
-    if (contractResult?.status === "success") {
-      console.log("onRefresh contractResult", contractResult);
-      onRefresh?.();
-    }
-  }, [contractResult, onRefresh]);
 
   const userSelect = useRef<boolean>();
 
   const hiddenStepIndex = useRef<number[]>([]);
+
+  // solana
+  const { connection } = useConnection();
+  const { publicKey, sendTransaction } = useWallet();
+  const { PROGRAM_ID, SEED, verifyingAccount, hasPlayed, getBalance } =
+    useSolana();
+  const [solanaContractSuccess, setSolanaContractSuccess] = useState(false);
+
+  useEffect(() => {
+    if (
+      network === "arbitrum-sepolia" &&
+      contractResult?.status === "success"
+    ) {
+      console.log("onRefresh contractResult", contractResult);
+      onRefresh?.();
+    } else if (network === "solana" && solanaContractSuccess) {
+      onRefresh?.();
+    }
+  }, [contractResult, onRefresh, solanaContractSuccess, network]);
 
   const SettlementProgress = [
     {
@@ -156,7 +183,7 @@ export const GameOver = ({
       prefix: "$",
       hideLoading: true,
       content: [
-        "Post game result to Arbitrum Sepolia?",
+        `Post game result to ${network}?`,
         <>
           {userSelect.current !== false && (
             <button
@@ -201,43 +228,71 @@ export const GameOver = ({
     {
       prefix: "$",
       content: [
-        "Minimum 0.002 ETH required.",
-        <>
-          <button
-            className="rounded-none text-warning btn btn-xs btn-ghost"
-            onClick={() => {
-              window.open("https://arbitrum-faucet.com/");
-            }}
-          >
-            [Faucet by Alchemy]
-          </button>
-          <button
-            className="rounded-none text-warning btn btn-xs btn-ghost"
-            onClick={() => {
-              window.open("https://faucet.quicknode.com/arbitrum/sepolia/");
-            }}
-          >
-            [Faucet by QuickNode]
-          </button>
-        </>,
+        network === "arbitrum-sepolia"
+          ? "Minimum 0.002 ETH required."
+          : "Minimum 0.00003 SOL required.",
+        network === "arbitrum-sepolia" ? (
+          <>
+            <button
+              className="rounded-none text-warning btn btn-xs btn-ghost"
+              onClick={() => {
+                window.open("https://arbitrum-faucet.com/");
+              }}
+            >
+              [Faucet by Alchemy]
+            </button>
+            <button
+              className="rounded-none text-warning btn btn-xs btn-ghost"
+              onClick={() => {
+                window.open("https://faucet.quicknode.com/arbitrum/sepolia/");
+              }}
+            >
+              [Faucet by QuickNode]
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              className="rounded-none text-warning btn btn-xs btn-ghost"
+              onClick={() => {
+                window.open("https://faucet.solana.com/");
+              }}
+            >
+              [Faucet by Solana]
+            </button>
+          </>
+        ),
       ],
       class: "text-error",
       run: () => {
         return new Promise((resolve) => {
-          const timer = setInterval(() => {
-            console.log("balance=", balanceData.current);
-            if (balanceData.current > 2000000000000000n) {
-              hiddenStepIndex.current = [4];
-              clearInterval(timer);
-              resolve(true);
-            }
-          }, 1000);
+          if (network === "solana") {
+            const timer = setInterval(() => {
+              getBalance().then((balanceData) => {
+                console.log("balance=", balanceData);
+                if (typeof balanceData === "number" && balanceData > 30000) {
+                  hiddenStepIndex.current = [4];
+                  clearInterval(timer);
+                  resolve(true);
+                }
+              });
+            }, 1500);
+          } else {
+            const timer = setInterval(() => {
+              console.log("balance=", balanceData.current);
+              if (balanceData.current > 2000000000000000n) {
+                hiddenStepIndex.current = [4];
+                clearInterval(timer);
+                resolve(true);
+              }
+            }, 1500);
+          }
         });
       },
     },
     {
       prefix: ">",
-      content: ["Verify proof on a decentralized network"],
+      content: ["Verify proof on the Internet Computer"],
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
@@ -264,18 +319,18 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: ["Post verification to Arbitrum Sepolia"],
+      content: [`Post verification to ${network}`],
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
-          if (typeof writeContractAsync === "function") {
-            console.log(
-              "3/4:",
-              `0x${signature}`,
-              programHash,
-              publicInputHash,
-              outputVec
-            );
+          console.log(
+            "3/4:",
+            `0x${signature}`,
+            programHash,
+            publicInputHash,
+            outputVec
+          );
+          if (network === "arbitrum-sepolia") {
             try {
               void writeContractAsync({
                 address: ContractAddress,
@@ -313,8 +368,116 @@ export const GameOver = ({
                 }
               }
             }
-          } else {
-            reject("contract init error");
+          } else if (network === "solana") {
+            try {
+              if (!publicKey) throw new Error("Wallet not connected!");
+              const mint = {
+                program_hash: programHash,
+                public_hash: publicInputHash,
+                output: outputVec,
+                icp_signature: Buffer.from(`${signature}`, "hex"),
+              };
+
+              return connection
+                .getLatestBlockhashAndContext()
+                .then((res) => {
+                  const {
+                    context: { slot: minContextSlot },
+                    value: { blockhash, lastValidBlockHeight },
+                  } = res;
+                  const data = Buffer.from(
+                    borsh.serialize(VerifyPayloadSchema, mint)
+                  );
+
+                  console.log("solana transaction", mint);
+
+                  const VERIFY_SIZE = borsh.serialize(
+                    VerifyPayloadSchema,
+                    mint
+                  ).length;
+                  return connection
+                    .getMinimumBalanceForRentExemption(VERIFY_SIZE)
+                    .then((lamports) => {
+                      if (!verifyingAccount) {
+                        return reject("without verifyingAccount");
+                      }
+
+                      const transaction = new Transaction({
+                        recentBlockhash: blockhash,
+                      });
+
+                      console.log("solana has played", hasPlayed);
+
+                      if (!hasPlayed) {
+                        transaction.add(
+                          SystemProgram.createAccountWithSeed({
+                            fromPubkey: publicKey,
+                            basePubkey: publicKey,
+                            seed: SEED,
+                            newAccountPubkey: verifyingAccount,
+                            lamports,
+                            space: VERIFY_SIZE,
+                            programId: PROGRAM_ID,
+                          })
+                        );
+                      }
+
+                      transaction.add(
+                        new TransactionInstruction({
+                          data,
+                          keys: [
+                            {
+                              pubkey: verifyingAccount,
+                              isSigner: false,
+                              isWritable: true,
+                            },
+                          ],
+                          programId: PROGRAM_ID,
+                        })
+                      );
+
+                      return sendTransaction(transaction, connection, {
+                        minContextSlot,
+                      }).then((signature) => {
+                        console.log("info", "Transaction sent:", signature);
+
+                        setTransactionHash(signature);
+
+                        return connection
+                          .confirmTransaction({
+                            blockhash,
+                            lastValidBlockHeight,
+                            signature,
+                          })
+                          .then(() => {
+                            console.log(
+                              "success",
+                              "Transaction successful!",
+                              signature
+                            );
+                            setSolanaContractSuccess(true);
+                            resolve(true);
+                          });
+                      });
+                    })
+                    .catch(() => {
+                      reject("Solana Transaction failed!");
+                    });
+                })
+                .catch(() => {
+                  reject("Solana Transaction failed!");
+                });
+
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } catch (error: any) {
+              console.warn(
+                "solana program error",
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                `Transaction failed! ${error?.message}`,
+                signature
+              );
+              reject(`Solana Transaction failed! `);
+            }
           }
         });
       },
@@ -367,6 +530,7 @@ export const GameOver = ({
               )}
               {log.content.map((cont, index) => (
                 <code
+                  key={index}
                   style={
                     index > 0
                       ? {

@@ -8,9 +8,13 @@ type mapInfo = {
   ShortestPathLength: number;
 };
 
+export type SupportNetwork = "arbitrum-sepolia" | "solana";
+
 export type StoreType = {
   mapInfo: mapInfo;
   gameResult: number;
+  network: SupportNetwork | null;
+  gameStart: boolean;
 };
 
 export type StoreDispatch = {
@@ -21,6 +25,8 @@ export type StoreDispatch = {
 const initialState: StoreType = {
   mapInfo: {} as mapInfo,
   gameResult: 0,
+  network: null,
+  gameStart: true,
 };
 
 function reducer(state: StoreType, action: StoreDispatch) {
@@ -33,7 +39,13 @@ function reducer(state: StoreType, action: StoreDispatch) {
     case "map":
       result.mapInfo = action.param as mapInfo;
       break;
+    case "network":
+      result.network = action.param as SupportNetwork;
+      break;
 
+    case "start":
+      result.gameStart = action.param as boolean;
+      break;
     default:
       throw new Error();
   }
