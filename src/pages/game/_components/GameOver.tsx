@@ -391,10 +391,7 @@ export const GameOver = ({
 
                   console.log("solana transaction", mint);
 
-                  const VERIFY_SIZE = borsh.serialize(
-                    VerifyPayloadSchema,
-                    mint
-                  ).length;
+                  const VERIFY_SIZE = 1;
                   return connection
                     .getMinimumBalanceForRentExemption(VERIFY_SIZE)
                     .then((lamports) => {
