@@ -38,12 +38,18 @@ export const Hero = () => {
             >
               Connect ArbitrumSepolia to Play
             </button>
-            <button
-              className="btn btn-accent text-white border-0 bg-[#512da8]"
-              onClick={() => void handleConnectSolanaWallet()}
+            <div
+              className="tooltip tooltip-bottom"
+              data-tip="Please switch your wallet to Devnet by selecting:
+              Settings -> Developer Settings -> Testnet Mode -> Solana Devnet"
             >
-              Connect Solana to Play
-            </button>
+              <button
+                className="btn btn-accent text-white border-0 bg-[#512da8] btn-block"
+                onClick={() => void handleConnectSolanaWallet()}
+              >
+                Connect Solana Devnet to Play
+              </button>
+            </div>
           </div>
         </div>
       </div>

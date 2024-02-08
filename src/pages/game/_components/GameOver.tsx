@@ -183,7 +183,9 @@ export const GameOver = ({
       prefix: "$",
       hideLoading: true,
       content: [
-        `Post game result to ${network}?`,
+        `Post game result to ${
+          network === "solana" ? "Solana" : "Arbitrum Sepolia"
+        }?`,
         <>
           {userSelect.current !== false && (
             <button
@@ -319,7 +321,11 @@ export const GameOver = ({
     },
     {
       prefix: ">",
-      content: [`Post verification to ${network}`],
+      content: [
+        `Post verification to ${
+          network === "solana" ? "Solana" : "Arbitrum Sepolia"
+        }`,
+      ],
       class: "text-success",
       run: () => {
         return new Promise((resolve, reject) => {
@@ -572,7 +578,9 @@ export const GameOver = ({
               className="rounded-none text-success btn btn-xs btn-ghost"
               onClick={() =>
                 window.open(
-                  `${Chain.blockExplorers.default.url}/tx/${transactionHash}`
+                  network === "arbitrum-sepolia"
+                    ? `${Chain.blockExplorers.default.url}/tx/${transactionHash}`
+                    : `https://solscan.io/tx/${transactionHash}?cluster=devnet`
                 )
               }
             >
