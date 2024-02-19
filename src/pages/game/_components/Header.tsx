@@ -59,8 +59,9 @@ const Header = forwardRef((_props, ref) => {
           },
         });
     }
-  }, [network]);
+  }, [network, Chain]);
 
+  console.log("EVM ContractAddress=", ContractAddress);
   const {
     data: contractData,
     // isPending: isContractLoading,
@@ -186,7 +187,6 @@ const Header = forwardRef((_props, ref) => {
           />
         )}
       </header>
-
       {network !== "solana" &&
         !supportChain.find((e) => e.id === Chain?.id) && (
           <div className="wrap">
@@ -205,8 +205,7 @@ const Header = forwardRef((_props, ref) => {
                 ></path>
               </svg>
               <span className="text-sm">
-                Your network({Chain?.id}) is not connected to ZK Maze, Please
-                switch Network.
+                Your network is not connected to ZK Maze, Please switch Network.
               </span>
               <div>
                 <button

@@ -1,14 +1,17 @@
 import { CellSize, TextureType, Step, animationSpeed } from "./config";
 import { Sprite, AnimatedSprite, Container } from "pixi.js";
 import { chains } from "@/hooks/ctx/Wagmi";
-import { useChainId } from "wagmi";
+import { useWeb3ModalState } from "@web3modal/wagmi/react";
 import { ContractAddressMap } from "@/constants";
 
 export const supportChain = chains;
 
 export const useCurrentChain = () => {
-  const chainId = useChainId();
-  const currentChain = supportChain.find((e) => e.id === chainId);
+  const { selectedNetworkId } = useWeb3ModalState();
+
+  const currentChain = supportChain.find(
+    (e) => e.id === (selectedNetworkId as unknown as number)
+  );
   if (currentChain?.id === 421614) {
     Object.assign(currentChain, {
       blockExplorers: {
@@ -23,8 +26,8 @@ export const useCurrentChain = () => {
 };
 
 export const useEVMContractAddress = () => {
-  const chainId = useChainId();
-  return ContractAddressMap[chainId];
+  const { selectedNetworkId } = useWeb3ModalState();
+  return ContractAddressMap[selectedNetworkId as unknown as number];
 };
 
 // 检测坐标系中的点是否越界
