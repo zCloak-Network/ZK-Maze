@@ -17,7 +17,7 @@ import {
   RESULT_COLOR_MAP,
   idlFactory,
 } from "@/constants";
-import { useCurrentChain } from "../_utils";
+import { useCurrentChain, useEVMContractAddress } from "../_utils";
 import * as myWorker from "../_utils/zkpWorker.ts";
 import { useWriteContract } from "wagmi";
 import { useStateStore } from "@/store";
@@ -47,8 +47,6 @@ const agent = new HttpAgent({ fetch, host: "https://ic0.app" });
 const canisterId = import.meta.env.VITE_APP_CANISTERID;
 const actor = Actor.createActor(idlFactory, { agent, canisterId });
 
-const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
-
 export const GameOver = ({
   onRefresh,
   onExit,
@@ -56,6 +54,8 @@ export const GameOver = ({
   onRefresh: () => void;
   onExit: () => void;
 }) => {
+  const ContractAddress = useEVMContractAddress();
+
   const balanceData = useRef<bigint>(0n);
   const { address } = useAccount();
   const { data: blockNumber } = useBlockNumber({ watch: true });

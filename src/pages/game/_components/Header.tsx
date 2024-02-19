@@ -12,14 +12,15 @@ import {
   dispatch as dispatchGameState,
   useCurrentChain,
   supportChain,
+  useEVMContractAddress,
 } from "../_utils";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import useSolana from "../_utils/useSolana";
 
-const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
-
 // eslint-disable-next-line react/display-name
 const Header = forwardRef((_props, ref) => {
+  const ContractAddress = useEVMContractAddress();
+
   const dispatch = useDispatchStore();
   const { network } = useStateStore();
 

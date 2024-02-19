@@ -2,6 +2,7 @@ import { CellSize, TextureType, Step, animationSpeed } from "./config";
 import { Sprite, AnimatedSprite, Container } from "pixi.js";
 import { chains } from "@/hooks/ctx/Wagmi";
 import { useChainId } from "wagmi";
+import { ContractAddressMap } from "@/constants";
 
 export const supportChain = chains;
 
@@ -19,6 +20,11 @@ export const useCurrentChain = () => {
     });
   }
   return currentChain;
+};
+
+export const useEVMContractAddress = () => {
+  const chainId = useChainId();
+  return ContractAddressMap[chainId];
 };
 
 // 检测坐标系中的点是否越界
