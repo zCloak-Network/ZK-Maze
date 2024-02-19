@@ -1,26 +1,25 @@
 import { CellSize, TextureType, Step, animationSpeed } from "./config";
 import { Sprite, AnimatedSprite, Container } from "pixi.js";
-import { arbitrumSepolia } from "wagmi/chains";
-export const Chain = {
-  ...arbitrumSepolia,
-  blockExplorers: {
-    default: {
-      name: "arbiscan",
-      url: "https://sepolia.arbiscan.io",
-    },
-  },
+import { chains } from "@/hooks/ctx/Wagmi";
+import { useChainId } from "wagmi";
+
+export const supportChain = chains;
+
+export const useCurrentChain = () => {
+  const chainId = useChainId();
+  const currentChain = supportChain.find((e) => e.id === chainId);
+  if (currentChain?.id === 421614) {
+    Object.assign(currentChain, {
+      blockExplorers: {
+        default: {
+          name: "arbiscan",
+          url: "https://sepolia.arbiscan.io",
+        },
+      },
+    });
+  }
+  return currentChain;
 };
-// import.meta.env.MODE === "production"
-//   ? arbitrum
-//   : {
-//       ...arbitrumSepolia,
-//       blockExplorers: {
-//         default: {
-//           name: "arbiscan",
-//           url: "https://sepolia.arbiscan.io",
-//         },
-//       },
-//     };
 
 // 检测坐标系中的点是否越界
 export function isOutOfBound(Map: TextureType[][], point: Step) {

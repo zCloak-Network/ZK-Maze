@@ -2,7 +2,13 @@ import { createWeb3Modal } from "@web3modal/wagmi/react";
 import { defaultWagmiConfig } from "@web3modal/wagmi/react/config";
 
 import { WagmiProvider } from "wagmi";
-import { arbitrumSepolia, type Chain } from "wagmi/chains";
+import {
+  arbitrumSepolia,
+  scrollSepolia,
+  baseSepolia,
+  optimismSepolia,
+  type Chain,
+} from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // 0. Setup queryClient
@@ -19,7 +25,13 @@ const metadata = {
   icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
 
-const chains = [arbitrumSepolia] as [Chain, ...Chain[]];
+export const chains = [
+  arbitrumSepolia,
+  scrollSepolia,
+  baseSepolia,
+  optimismSepolia,
+] as [Chain, ...Chain[]];
+
 const config = defaultWagmiConfig({
   chains, // required
   projectId, // required

@@ -17,7 +17,7 @@ import {
   RESULT_COLOR_MAP,
   idlFactory,
 } from "@/constants";
-import { Chain } from "../_utils";
+import { useCurrentChain } from "../_utils";
 import * as myWorker from "../_utils/zkpWorker.ts";
 import { useWriteContract } from "wagmi";
 import { useStateStore } from "@/store";
@@ -72,6 +72,8 @@ export const GameOver = ({
     }
   }, [balance]);
 
+  const Chain = useCurrentChain();
+
   const { path } = gameState;
   const [step, setStep] = useState(0);
   const [zkpResult, setZkpResult] = useState<string | undefined>();
@@ -102,10 +104,7 @@ export const GameOver = ({
   const [solanaContractSuccess, setSolanaContractSuccess] = useState(false);
 
   useEffect(() => {
-    if (
-      network === "arbitrum-sepolia" &&
-      contractResult?.status === "success"
-    ) {
+    if (network !== "solana" && contractResult?.status === "success") {
       console.log("onRefresh contractResult", contractResult);
       onRefresh?.();
     } else if (network === "solana" && solanaContractSuccess) {
@@ -230,10 +229,10 @@ export const GameOver = ({
     {
       prefix: "$",
       content: [
-        network === "arbitrum-sepolia"
+        network !== "solana"
           ? "Minimum 0.002 ETH required."
           : "Minimum 0.00003 SOL required.",
-        network === "arbitrum-sepolia" ? (
+        network !== "solana" ? (
           <>
             <button
               className="rounded-none text-warning btn btn-xs btn-ghost"
@@ -336,13 +335,13 @@ export const GameOver = ({
             publicInputHash,
             outputVec
           );
-          if (network === "arbitrum-sepolia") {
+          if (network !== "solana") {
             try {
               void writeContractAsync({
                 address: ContractAddress,
                 abi: ABI,
                 functionName: "verifyECDSASignature",
-                chainId: Chain.id,
+                chainId: Chain?.id,
                 args: [
                   `0x${signature}`,
                   programHash,
@@ -374,7 +373,7 @@ export const GameOver = ({
                 }
               }
             }
-          } else if (network === "solana") {
+          } else {
             try {
               if (!publicKey) throw new Error("Wallet not connected!");
               const mint = {
@@ -578,8 +577,8 @@ export const GameOver = ({
               className="rounded-none text-success btn btn-xs btn-ghost"
               onClick={() =>
                 window.open(
-                  network === "arbitrum-sepolia"
-                    ? `${Chain.blockExplorers.default.url}/tx/${transactionHash}`
+                  network !== "solana"
+                    ? `${Chain?.blockExplorers?.default.url}/tx/${transactionHash}`
                     : `https://solscan.io/tx/${transactionHash}?cluster=devnet`
                 )
               }
