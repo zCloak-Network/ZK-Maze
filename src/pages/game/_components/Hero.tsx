@@ -1,8 +1,18 @@
 // import { ButtonEnable } from "@/components";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 
 export const Hero = () => {
   const { open } = useWeb3Modal();
+  const { setVisible } = useWalletModal();
+
+  const handleConnectWallet = () => {
+    void open();
+  };
+
+  const handleConnectSolanaWallet = () => {
+    void setVisible(true);
+  };
 
   return (
     <div
@@ -20,10 +30,27 @@ export const Hero = () => {
             shortest path, skillfully avoid obstacles, and victory is within
             reach. Ready? Adventure is calling!
           </p>
-          {/* <ButtonEnable /> */}
-          <button className="btn btn-primary" onClick={() => void open()}>
-            Connect Wallet to Play
-          </button>
+
+          <div className="flex flex-col gap-2 w-[300px] m-auto">
+            <button
+              className="btn btn-primary"
+              onClick={() => void handleConnectWallet()}
+            >
+              Connect ArbitrumSepolia to Play
+            </button>
+            <div
+              className="tooltip tooltip-bottom"
+              data-tip="Please switch your wallet to Devnet by selecting:
+              Settings -> Developer Settings -> Testnet Mode -> Solana Devnet"
+            >
+              <button
+                className="btn btn-accent text-white border-0 bg-[#512da8] btn-block"
+                onClick={() => void handleConnectSolanaWallet()}
+              >
+                Connect Solana Devnet to Play
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
