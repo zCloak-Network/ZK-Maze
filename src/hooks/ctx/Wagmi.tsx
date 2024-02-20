@@ -4,7 +4,6 @@ import { defaultWagmiConfig } from "@web3modal/wagmi/react/config";
 import { WagmiProvider } from "wagmi";
 import {
   arbitrumSepolia,
-  scrollSepolia,
   baseSepolia,
   optimismSepolia,
   type Chain,
@@ -25,12 +24,11 @@ const metadata = {
   icons: ["https://avatars.githubusercontent.com/u/37784886"],
 };
 
-export const chains = [
-  arbitrumSepolia,
-  scrollSepolia,
-  baseSepolia,
-  optimismSepolia,
-] as [Chain, ...Chain[]];
+// eslint-disable-next-line react-refresh/only-export-components
+export const chains = [arbitrumSepolia, baseSepolia, optimismSepolia] as [
+  Chain,
+  ...Chain[]
+];
 
 const config = defaultWagmiConfig({
   chains, // required
@@ -43,11 +41,13 @@ const config = defaultWagmiConfig({
 });
 
 // 3. Create modal
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 createWeb3Modal({
   wagmiConfig: config,
   projectId,
   chains,
   themeMode: "light",
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any);
 
 export function Web3Modal({ children }: { children: React.ReactNode }) {

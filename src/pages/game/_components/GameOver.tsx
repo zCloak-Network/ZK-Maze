@@ -327,6 +327,7 @@ export const GameOver = ({
       ],
       class: "text-success",
       run: () => {
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         return new Promise((resolve, reject) => {
           console.log(
             "3/4:",
