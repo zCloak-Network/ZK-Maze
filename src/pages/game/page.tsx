@@ -13,7 +13,7 @@ export default function GamePage() {
 
   useAccountEffect({
     onConnect() {
-      dispatch && dispatch({ type: "network", param: "arbitrum-sepolia" });
+      dispatch && dispatch({ type: "network", param: "evm" });
       setIsconnected(true);
     },
     onDisconnect() {

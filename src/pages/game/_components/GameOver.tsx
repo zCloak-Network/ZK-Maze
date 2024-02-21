@@ -16,6 +16,7 @@ import {
   RESULT_MAP,
   RESULT_COLOR_MAP,
   idlFactory,
+  FaucetMap,
 } from "@/constants";
 import { useCurrentChain, useEVMContractAddress } from "../_utils";
 import * as myWorker from "../_utils/zkpWorker.ts";
@@ -33,6 +34,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import useSolana from "../_utils/useSolana.ts";
+
 const VerifyPayloadSchema: borsh.Schema = {
   struct: {
     program_hash: "string",
@@ -182,9 +184,7 @@ export const GameOver = ({
       prefix: "$",
       hideLoading: true,
       content: [
-        `Post game result to ${
-          network === "solana" ? "Solana" : "Arbitrum Sepolia"
-        }?`,
+        `Post game result to ${network === "solana" ? "Solana" : Chain?.name}?`,
         <>
           {userSelect.current !== false && (
             <button
@@ -234,22 +234,21 @@ export const GameOver = ({
           : "Minimum 0.00003 SOL required.",
         network !== "solana" ? (
           <>
-            <button
-              className="rounded-none text-warning btn btn-xs btn-ghost"
-              onClick={() => {
-                window.open("https://arbitrum-faucet.com/");
-              }}
-            >
-              [Faucet by Alchemy]
-            </button>
-            <button
-              className="rounded-none text-warning btn btn-xs btn-ghost"
-              onClick={() => {
-                window.open("https://faucet.quicknode.com/arbitrum/sepolia/");
-              }}
-            >
-              [Faucet by QuickNode]
-            </button>
+            {Chain?.id && FaucetMap[Chain?.id]
+              ? FaucetMap[Chain?.id].map((obj, index) => {
+                  return (
+                    <button
+                      key={index}
+                      className="rounded-none text-warning btn btn-xs btn-ghost"
+                      onClick={() => {
+                        window.open(Object.entries(obj)[0]?.[1]);
+                      }}
+                    >
+                      [{Object.entries(obj)[0]?.[0]}]
+                    </button>
+                  );
+                })
+              : null}
           </>
         ) : (
           <>
@@ -321,9 +320,7 @@ export const GameOver = ({
     {
       prefix: ">",
       content: [
-        `Post verification to ${
-          network === "solana" ? "Solana" : "Arbitrum Sepolia"
-        }`,
+        `Post verification to ${network === "solana" ? "Solana" : Chain?.name}`,
       ],
       class: "text-success",
       run: () => {
