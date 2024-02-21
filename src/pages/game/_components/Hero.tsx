@@ -36,7 +36,7 @@ export const Hero = () => {
               className="btn btn-primary"
               onClick={() => void handleConnectWallet()}
             >
-              Connect ArbitrumSepolia to Play
+              Connect EVM Wallet to Play
             </button>
             <div
               className="tooltip tooltip-bottom"
