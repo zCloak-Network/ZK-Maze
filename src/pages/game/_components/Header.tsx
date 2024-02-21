@@ -31,7 +31,7 @@ const Header = forwardRef((_props, ref) => {
   useEffect(() => {
     if (network !== "solana") {
       if (supportChain.find((e) => e.id === Chain?.id)) {
-        console.log("game is ready");
+        console.log("game is ready", Chain?.name);
         dispatchGameState &&
           dispatchGameState({
             type: "ready",
@@ -86,7 +86,7 @@ const Header = forwardRef((_props, ref) => {
           param: contractData,
         });
     }
-  }, [contractData, isContractSuccess]);
+  }, [contractData, dispatch, isContractSuccess]);
 
   const {
     data: solanaData,
@@ -104,7 +104,7 @@ const Header = forwardRef((_props, ref) => {
           param: solanaData,
         });
     }
-  }, [isSolanaSuccess, solanaData]);
+  }, [dispatch, isSolanaSuccess, solanaData]);
 
   useImperativeHandle(
     ref,
@@ -210,7 +210,7 @@ const Header = forwardRef((_props, ref) => {
               <div>
                 <button
                   className="btn btn-primary btn-sm"
-                  onClick={() => open({ view: "Networks" })}
+                  onClick={() => void open({ view: "Networks" })}
                 >
                   {"switch network"}
                 </button>
