@@ -1,6 +1,6 @@
 import { useImperativeHandle, forwardRef, useEffect } from "react";
-import { useSwitchChain, useReadContract, useAccount } from "wagmi";
-import { useWeb3ModalState } from "@web3modal/wagmi/react";
+import { useReadContract, useAccount } from "wagmi";
+import { useWeb3Modal } from "@web3modal/wagmi/react";
 import { useDispatchStore, useStateStore } from "@/store";
 import {
   ABI,
@@ -8,25 +8,30 @@ import {
   RESULT_COLOR_MAP,
   RESULT_DESCRIPTION,
 } from "@/constants";
-import { dispatch as dispatchGameState, Chain } from "../_utils";
+import {
+  dispatch as dispatchGameState,
+  useCurrentChain,
+  supportChain,
+  useEVMContractAddress,
+} from "../_utils";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import useSolana from "../_utils/useSolana";
 
-const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
-
 // eslint-disable-next-line react/display-name
 const Header = forwardRef((_props, ref) => {
+  const ContractAddress = useEVMContractAddress();
+
   const dispatch = useDispatchStore();
   const { network } = useStateStore();
 
-  const { selectedNetworkId } = useWeb3ModalState();
-  const { error, isPending, switchChain } = useSwitchChain();
+  const { open } = useWeb3Modal();
   const { address } = useAccount();
+  const Chain = useCurrentChain();
 
   useEffect(() => {
-    if (network === "arbitrum-sepolia") {
-      if (String(selectedNetworkId) === String(Chain.id)) {
-        console.log("game is ready");
+    if (network !== "solana") {
+      if (supportChain.find((e) => e.id === Chain?.id)) {
+        console.log("game is ready", Chain?.name);
         dispatchGameState &&
           dispatchGameState({
             type: "ready",
@@ -35,10 +40,7 @@ const Header = forwardRef((_props, ref) => {
             },
           });
       } else {
-        if (String(selectedNetworkId) !== String(Chain.id)) {
-          switchChain?.({ chainId: Chain.id });
-        }
-        console.log("game is lock");
+        console.log("game is lock", supportChain, Chain);
         dispatchGameState &&
           dispatchGameState({
             type: "ready",
@@ -47,7 +49,7 @@ const Header = forwardRef((_props, ref) => {
             },
           });
       }
-    } else if (network === "solana") {
+    } else {
       console.log("game is ready with solana");
       dispatchGameState &&
         dispatchGameState({
@@ -57,8 +59,9 @@ const Header = forwardRef((_props, ref) => {
           },
         });
     }
-  }, [network, selectedNetworkId, switchChain]);
+  }, [network, Chain]);
 
+  console.log("EVM ContractAddress=", ContractAddress);
   const {
     data: contractData,
     // isPending: isContractLoading,
@@ -70,20 +73,20 @@ const Header = forwardRef((_props, ref) => {
     functionName: "checkUserAchievement",
     args: [address],
     query: {
-      enabled: network === "arbitrum-sepolia",
+      enabled: network !== "solana",
     },
   });
 
   useEffect(() => {
+    console.log("evm useReadContract", contractData);
     if (isContractSuccess && contractData) {
-      console.log("useReadContract", contractData);
       dispatch &&
         dispatch({
           type: "update",
           param: contractData,
         });
     }
-  }, [contractData, isContractSuccess]);
+  }, [contractData, dispatch, isContractSuccess]);
 
   const {
     data: solanaData,
@@ -101,16 +104,16 @@ const Header = forwardRef((_props, ref) => {
           param: solanaData,
         });
     }
-  }, [isSolanaSuccess, solanaData]);
+  }, [dispatch, isSolanaSuccess, solanaData]);
 
   useImperativeHandle(
     ref,
     () => {
       return {
         refetch: () => {
-          if (network === "arbitrum-sepolia") {
+          if (network !== "solana") {
             void refetchContract?.();
-          } else if (network === "solana") {
+          } else {
             fetchSolana?.();
           }
         },
@@ -119,8 +122,8 @@ const Header = forwardRef((_props, ref) => {
     [network, refetchContract, fetchSolana]
   );
 
-  const data = network === "arbitrum-sepolia" ? contractData : solanaData;
-  const isLoading = false; // network === "arbitrum-sepolia" ? isContractLoading : isSolanaLoading;
+  const data = network !== "solana" ? contractData : solanaData;
+  const isLoading = false; // network !== "solana" ? isContractLoading : isSolanaLoading;
 
   return (
     <>
@@ -175,7 +178,7 @@ const Header = forwardRef((_props, ref) => {
             </div>
           </div>
         ) : null}
-        {network === "arbitrum-sepolia" && <w3m-button balance={"hide"} />}
+        {network !== "solana" && <w3m-button balance={"hide"} />}
         {network === "solana" && (
           <WalletMultiButton
             style={{
@@ -184,9 +187,8 @@ const Header = forwardRef((_props, ref) => {
           />
         )}
       </header>
-
-      {network === "arbitrum-sepolia" &&
-        String(selectedNetworkId) !== String(Chain.id) && (
+      {network !== "solana" &&
+        !supportChain.find((e) => e.id === Chain?.id) && (
           <div className="wrap">
             <div role="alert" className="alert ">
               <svg
@@ -203,37 +205,17 @@ const Header = forwardRef((_props, ref) => {
                 ></path>
               </svg>
               <span className="text-sm">
-                Your network({selectedNetworkId}) is not connected to ZK Maze,
-                Please switch Network.
+                Your network is not connected to ZK Maze, Please switch Network.
               </span>
               <div>
                 <button
                   className="btn btn-primary btn-sm"
-                  disabled={isPending}
-                  onClick={() => switchChain?.({ chainId: Chain.id })}
+                  onClick={() => void open({ view: "Networks" })}
                 >
-                  {isPending ? "switching" : "switch network"}
+                  {"switch network"}
                 </button>
               </div>
             </div>
-            {error && (
-              <div role="alert" className="mt-2 alert alert-error">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 stroke-current w-6 shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <span className="text-sm">{error.message}</span>
-              </div>
-            )}
           </div>
         )}
     </>

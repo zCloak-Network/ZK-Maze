@@ -8,7 +8,7 @@ type mapInfo = {
   ShortestPathLength: number;
 };
 
-export type SupportNetwork = "arbitrum-sepolia" | "solana";
+export type SupportNetwork = "evm" | "solana";
 
 export type StoreType = {
   mapInfo: mapInfo;

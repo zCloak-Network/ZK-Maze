@@ -16,8 +16,9 @@ import {
   RESULT_MAP,
   RESULT_COLOR_MAP,
   idlFactory,
+  FaucetMap,
 } from "@/constants";
-import { Chain } from "../_utils";
+import { useCurrentChain, useEVMContractAddress } from "../_utils";
 import * as myWorker from "../_utils/zkpWorker.ts";
 import { useWriteContract } from "wagmi";
 import { useStateStore } from "@/store";
@@ -33,6 +34,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import useSolana from "../_utils/useSolana.ts";
+
 const VerifyPayloadSchema: borsh.Schema = {
   struct: {
     program_hash: "string",
@@ -47,8 +49,6 @@ const agent = new HttpAgent({ fetch, host: "https://ic0.app" });
 const canisterId = import.meta.env.VITE_APP_CANISTERID;
 const actor = Actor.createActor(idlFactory, { agent, canisterId });
 
-const ContractAddress = import.meta.env.VITE_APP_CONTRACT_ADDRESS;
-
 export const GameOver = ({
   onRefresh,
   onExit,
@@ -56,6 +56,8 @@ export const GameOver = ({
   onRefresh: () => void;
   onExit: () => void;
 }) => {
+  const ContractAddress = useEVMContractAddress();
+
   const balanceData = useRef<bigint>(0n);
   const { address } = useAccount();
   const { data: blockNumber } = useBlockNumber({ watch: true });
@@ -71,6 +73,8 @@ export const GameOver = ({
       balanceData.current = balance.value;
     }
   }, [balance]);
+
+  const Chain = useCurrentChain();
 
   const { path } = gameState;
   const [step, setStep] = useState(0);
@@ -102,10 +106,7 @@ export const GameOver = ({
   const [solanaContractSuccess, setSolanaContractSuccess] = useState(false);
 
   useEffect(() => {
-    if (
-      network === "arbitrum-sepolia" &&
-      contractResult?.status === "success"
-    ) {
+    if (network !== "solana" && contractResult?.status === "success") {
       console.log("onRefresh contractResult", contractResult);
       onRefresh?.();
     } else if (network === "solana" && solanaContractSuccess) {
@@ -183,9 +184,7 @@ export const GameOver = ({
       prefix: "$",
       hideLoading: true,
       content: [
-        `Post game result to ${
-          network === "solana" ? "Solana" : "Arbitrum Sepolia"
-        }?`,
+        `Post game result to ${network === "solana" ? "Solana" : Chain?.name}?`,
         <>
           {userSelect.current !== false && (
             <button
@@ -230,27 +229,26 @@ export const GameOver = ({
     {
       prefix: "$",
       content: [
-        network === "arbitrum-sepolia"
+        network !== "solana"
           ? "Minimum 0.002 ETH required."
           : "Minimum 0.00003 SOL required.",
-        network === "arbitrum-sepolia" ? (
+        network !== "solana" ? (
           <>
-            <button
-              className="rounded-none text-warning btn btn-xs btn-ghost"
-              onClick={() => {
-                window.open("https://arbitrum-faucet.com/");
-              }}
-            >
-              [Faucet by Alchemy]
-            </button>
-            <button
-              className="rounded-none text-warning btn btn-xs btn-ghost"
-              onClick={() => {
-                window.open("https://faucet.quicknode.com/arbitrum/sepolia/");
-              }}
-            >
-              [Faucet by QuickNode]
-            </button>
+            {Chain?.id && FaucetMap[Chain?.id]
+              ? FaucetMap[Chain?.id].map((obj, index) => {
+                  return (
+                    <button
+                      key={index}
+                      className="rounded-none text-warning btn btn-xs btn-ghost"
+                      onClick={() => {
+                        window.open(Object.entries(obj)[0]?.[1]);
+                      }}
+                    >
+                      [{Object.entries(obj)[0]?.[0]}]
+                    </button>
+                  );
+                })
+              : null}
           </>
         ) : (
           <>
@@ -322,12 +320,11 @@ export const GameOver = ({
     {
       prefix: ">",
       content: [
-        `Post verification to ${
-          network === "solana" ? "Solana" : "Arbitrum Sepolia"
-        }`,
+        `Post verification to ${network === "solana" ? "Solana" : Chain?.name}`,
       ],
       class: "text-success",
       run: () => {
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
         return new Promise((resolve, reject) => {
           console.log(
             "3/4:",
@@ -336,13 +333,13 @@ export const GameOver = ({
             publicInputHash,
             outputVec
           );
-          if (network === "arbitrum-sepolia") {
+          if (network !== "solana") {
             try {
               void writeContractAsync({
                 address: ContractAddress,
                 abi: ABI,
                 functionName: "verifyECDSASignature",
-                chainId: Chain.id,
+                chainId: Chain?.id,
                 args: [
                   `0x${signature}`,
                   programHash,
@@ -374,7 +371,7 @@ export const GameOver = ({
                 }
               }
             }
-          } else if (network === "solana") {
+          } else {
             try {
               if (!publicKey) throw new Error("Wallet not connected!");
               const mint = {
@@ -578,8 +575,8 @@ export const GameOver = ({
               className="rounded-none text-success btn btn-xs btn-ghost"
               onClick={() =>
                 window.open(
-                  network === "arbitrum-sepolia"
-                    ? `${Chain.blockExplorers.default.url}/tx/${transactionHash}`
+                  network !== "solana"
+                    ? `${Chain?.blockExplorers?.default.url}/tx/${transactionHash}`
                     : `https://solscan.io/tx/${transactionHash}?cluster=devnet`
                 )
               }
