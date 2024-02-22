@@ -9,10 +9,9 @@ export const NetworkSwitch = () => {
     <>
       {chain?.name ? (
         <div
-          className="border rounded-box cursor-pointer flex font-semibold bg-[#d9eafe] border-[#4296fc] h-[30px] text-sm px-4 text-[#4296fc] z-50 relative items-center hover:opacity-80"
+          className=" rounded-box cursor-pointer flex font-semibold bg-[#d9eafe] h-[30px] text-sm px-4 text-[#4296fc] z-50 relative items-center hover:opacity-80"
           onClick={() => open({ view: "Networks" })}
         >
-          {/*  */}
           <svg
             fill="currentColor"
             viewBox="0 0 32 32"
