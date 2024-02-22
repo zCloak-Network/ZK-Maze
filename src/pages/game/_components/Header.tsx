@@ -16,6 +16,7 @@ import {
 } from "../_utils";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import useSolana from "../_utils/useSolana";
+import { NetworkSwitch } from "./NetworkSwitch";
 
 // eslint-disable-next-line react/display-name
 const Header = forwardRef((_props, ref) => {
@@ -178,6 +179,9 @@ const Header = forwardRef((_props, ref) => {
             </div>
           </div>
         ) : null}
+
+        <NetworkSwitch />
+
         {network !== "solana" && <w3m-button balance={"hide"} />}
         {network === "solana" && (
           <WalletMultiButton
