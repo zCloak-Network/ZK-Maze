@@ -34,6 +34,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import useSolana from "../_utils/useSolana.ts";
+import SBTIcon from "@/assets/coin-svgrepo-com.svg?react";
 
 const VerifyPayloadSchema: borsh.Schema = {
   struct: {
@@ -582,6 +583,17 @@ export const GameOver = ({
               }
             >
               [Browse Transaction]
+            </button>
+          )}
+          {SettlementOver && gameResult === 1 && (
+            <button
+              className="rounded-none text-success btn btn-xs btn-ghost"
+              onClick={() => {
+                setErrorMsg(undefined);
+                onExit();
+              }}
+            >
+              [<SBTIcon /> Mint SBT]
             </button>
           )}
           {(SettlementOver || errorMsg) && (
