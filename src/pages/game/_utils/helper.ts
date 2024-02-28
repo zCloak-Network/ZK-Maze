@@ -2,7 +2,7 @@ import { CellSize, TextureType, Step, animationSpeed } from "./config";
 import { Sprite, AnimatedSprite, Container } from "pixi.js";
 import { chains } from "@/hooks/ctx/Wagmi";
 import { useWeb3ModalState } from "@web3modal/wagmi/react";
-import { ContractAddressMap } from "@/constants";
+import { ContractAddressMap, SBTAddressMap } from "@/constants";
 
 export const supportChain = chains;
 
@@ -28,6 +28,11 @@ export const useCurrentChain = () => {
 export const useEVMContractAddress = () => {
   const { selectedNetworkId } = useWeb3ModalState();
   return ContractAddressMap[selectedNetworkId as unknown as number];
+};
+
+export const useEVMSBTAddress = () => {
+  const { selectedNetworkId } = useWeb3ModalState();
+  return SBTAddressMap[selectedNetworkId as unknown as number];
 };
 
 // 检测坐标系中的点是否越界
