@@ -15,7 +15,7 @@ export default function useEvmSbt() {
     return writeContractAsync({
       address: ContractAddress,
       abi: SBTABI,
-      functionName: "verifyECDSASignature",
+      functionName: "claimToken",
       chainId: Chain?.id,
       args: [address],
     });
@@ -27,7 +27,7 @@ export default function useEvmSbt() {
   } = useReadContract({
     address: ContractAddress,
     abi: SBTABI,
-    functionName: "checkUserAchievement",
+    functionName: "checkTokenID",
     args: [address],
     query: {
       enabled: network !== "solana",
