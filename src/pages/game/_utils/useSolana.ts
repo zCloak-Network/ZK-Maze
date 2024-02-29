@@ -10,6 +10,7 @@ export default function useSolana() {
   );
   const { network } = useStateStore();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const PROGRAM_ID = new PublicKey(
     "EfMghMxfMJUBh51G3u4JJGB2v1wFCHYCsBFo8Lz8QhJW"
   );
@@ -23,7 +24,7 @@ export default function useSolana() {
         }
       );
     }
-  }, [publicKey]);
+  }, [PROGRAM_ID, publicKey]);
 
   const [isPending, setIsPending] = useState(false);
   const [isSuccess, setSuccess] = useState(false);
@@ -62,11 +63,11 @@ export default function useSolana() {
       setSuccess(false);
       console.warn("No verifying account");
     }
-  }, [verifyingAccount]);
+  }, [connection, isPending, network, verifyingAccount]);
 
   useEffect(() => {
     verifyingAccount && connection && refetch();
-  }, [connection, verifyingAccount]);
+  }, [connection, refetch, verifyingAccount]);
 
   return {
     publicKey,

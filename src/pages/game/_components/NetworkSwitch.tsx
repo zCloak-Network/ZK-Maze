@@ -10,7 +10,7 @@ export const NetworkSwitch = () => {
       {chain?.name ? (
         <div
           className=" rounded-box cursor-pointer flex font-semibold bg-[#d9eafe] h-[30px] text-sm px-4 text-[#4296fc] z-50 relative items-center hover:opacity-80"
-          onClick={() => open({ view: "Networks" })}
+          onClick={() => void open({ view: "Networks" })}
         >
           <svg
             fill="currentColor"
