@@ -4,7 +4,7 @@ import { useCurrentChain } from "../_utils";
 export const NetworkSwitch = () => {
   const { open } = useWeb3Modal();
   const chain = useCurrentChain();
-  console.log(chain);
+
   return (
     <>
       {chain?.name ? (

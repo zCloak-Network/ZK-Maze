@@ -120,9 +120,11 @@ export const GameOver = ({
   });
 
   useEffect(() => {
-    console.log("refetchSBT", hasSBT);
-    void refetchSBT();
-  }, [mintSBTResult, mintHash, refetchSBT, hasSBT]);
+    if (network !== "solana") {
+      console.log("refetchSBT", hasSBT);
+      void refetchSBT();
+    }
+  }, [mintSBTResult, mintHash, refetchSBT, hasSBT, network]);
 
   useEffect(() => {
     if (network !== "solana" && contractResult?.status === "success") {
