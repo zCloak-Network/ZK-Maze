@@ -113,6 +113,7 @@ export const GameOver = ({
   // SBT
   const [mintHash, setMintHash] = useState<string | undefined>();
   const { hasSBT, mint, mintLoading, refetchSBT } = useEvmSbt();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
   const SBTBrowser = useEVMSBTBrowser(Number(hasSBT), mintHash);
   const mintSBTResult = useWaitForTransactionReceipt({
     hash: mintHash as `0x${string}`,

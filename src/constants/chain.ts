@@ -59,7 +59,7 @@ export const SBTBrowserMap: Record<
   421614: function (id?: number) {
     return `https://testnets.opensea.io/zh-CN/assets/arbitrum-sepolia/0x6889695c0a6272410af24766bbf3980f2466a1dc/${id}`;
   },
-  11155420: function (id?: number, hash?: string) {
+  11155420: function (_id?: number, hash?: string) {
     return `https://optimism-sepolia.blockscout.com/token/${hash}`;
   },
   84532: function (id?: number) {
