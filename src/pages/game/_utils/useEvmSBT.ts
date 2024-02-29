@@ -1,9 +1,11 @@
 import { useWriteContract, useReadContract, useAccount } from "wagmi";
 
-import { useEVMSBTAddress, useCurrentChain } from "../_utils";
+import { useEVMSBTAddress, useCurrentChain } from ".";
 import { useStateStore } from "@/store";
 import { SBTABI } from "@/constants";
-export default function useEvmSbt() {
+
+import { useState } from "react";
+export function useEvmSbt() {
   const Chain = useCurrentChain();
   const ContractAddress = useEVMSBTAddress();
   const { network } = useStateStore();
@@ -11,18 +13,22 @@ export default function useEvmSbt() {
   const { writeContractAsync } = useWriteContract();
   const { address } = useAccount();
 
-  const write = () => {
+  const [mintLoading, setClaimLoading] = useState(false);
+
+  const mint = () => {
+    setClaimLoading(true);
     return writeContractAsync({
       address: ContractAddress,
       abi: SBTABI,
-      functionName: "claimToken",
+      functionName: "mint",
       chainId: Chain?.id,
       args: [address],
-    });
+    }).finally(() => setClaimLoading(false));
   };
 
   const {
     data: hasSBT,
+    refetch: refetchSBT,
     // isPending: isContractLoading,
   } = useReadContract({
     address: ContractAddress,
@@ -36,6 +42,8 @@ export default function useEvmSbt() {
 
   return {
     hasSBT,
-    write,
+    refetchSBT,
+    mint,
+    mintLoading,
   };
 }
