@@ -621,7 +621,8 @@ export const GameOver = ({
                 className="rounded-none text-success btn btn-xs btn-ghost"
                 disabled={mintLoading}
                 onClick={() => {
-                  void mint().then((hash) => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  void mint().then((hash: any) => {
                     console.log("mint", hash);
                     setMintHash(hash);
                   });
