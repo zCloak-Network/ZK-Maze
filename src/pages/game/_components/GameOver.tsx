@@ -9,7 +9,7 @@ import {
 } from "wagmi";
 import { useState, useEffect, useRef } from "react";
 import FileSaver from "file-saver";
-import { generatePublicInput, gameState } from "../_utils";
+import { generatePublicInput, gameState, useEvmSbt } from "../_utils";
 import {
   PROGRAM_STRING,
   ABI,
@@ -18,7 +18,11 @@ import {
   idlFactory,
   FaucetMap,
 } from "@/constants";
-import { useCurrentChain, useEVMContractAddress } from "../_utils";
+import {
+  useCurrentChain,
+  useEVMContractAddress,
+  useEVMSBTBrowser,
+} from "../_utils";
 import * as myWorker from "../_utils/zkpWorker.ts";
 import { useWriteContract } from "wagmi";
 import { useStateStore } from "@/store";
@@ -34,6 +38,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import useSolana from "../_utils/useSolana.ts";
+import SBTIcon from "@/assets/coin-svgrepo-com.svg?react";
 
 const VerifyPayloadSchema: borsh.Schema = {
   struct: {
@@ -104,6 +109,22 @@ export const GameOver = ({
   const { PROGRAM_ID, SEED, verifyingAccount, hasPlayed, getBalance } =
     useSolana();
   const [solanaContractSuccess, setSolanaContractSuccess] = useState(false);
+
+  // SBT
+  const [mintHash, setMintHash] = useState<string | undefined>();
+  const { hasSBT, mint, mintLoading, refetchSBT } = useEvmSbt();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const SBTBrowser = useEVMSBTBrowser(Number(hasSBT), mintHash);
+  const mintSBTResult = useWaitForTransactionReceipt({
+    hash: mintHash as `0x${string}`,
+  });
+
+  useEffect(() => {
+    if (network !== "solana") {
+      console.log("refetchSBT", hasSBT);
+      void refetchSBT();
+    }
+  }, [mintSBTResult, mintHash, refetchSBT, hasSBT, network]);
 
   useEffect(() => {
     if (network !== "solana" && contractResult?.status === "success") {
@@ -515,6 +536,10 @@ export const GameOver = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
+  useEffect(() => {
+    console.log("hasSBT=", hasSBT);
+  }, [hasSBT]);
+
   return (
     <div className="flex flex-col h-full text-white w-full p-4 top-0 left-0 absolute justify-center items-center">
       <div className="bg-base-100 text-base-content min-h-20 mockup-code">
@@ -584,6 +609,30 @@ export const GameOver = ({
               [Browse Transaction]
             </button>
           )}
+          {SettlementOver &&
+            gameResult === 1 &&
+            (hasSBT ? (
+              <button
+                className="rounded-none text-success btn btn-xs btn-ghost"
+                onClick={() => SBTBrowser && window.open(SBTBrowser)}
+              >
+                [My SBT]
+              </button>
+            ) : (
+              <button
+                className="rounded-none text-success btn btn-xs btn-ghost"
+                disabled={mintLoading}
+                onClick={() => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  void mint().then((hash: any) => {
+                    console.log("mint", hash);
+                    setMintHash(hash);
+                  });
+                }}
+              >
+                [<SBTIcon /> {mintLoading ? "Minting" : "Mint SBT"}]
+              </button>
+            ))}
           {(SettlementOver || errorMsg) && (
             <button
               className="rounded-none text-error btn btn-xs btn-ghost"

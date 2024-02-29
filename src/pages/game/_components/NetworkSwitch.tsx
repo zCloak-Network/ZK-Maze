@@ -4,13 +4,13 @@ import { useCurrentChain } from "../_utils";
 export const NetworkSwitch = () => {
   const { open } = useWeb3Modal();
   const chain = useCurrentChain();
-  console.log(chain);
+
   return (
     <>
       {chain?.name ? (
         <div
           className=" rounded-box cursor-pointer flex font-semibold bg-[#d9eafe] h-[30px] text-sm px-4 text-[#4296fc] z-50 relative items-center hover:opacity-80"
-          onClick={() => open({ view: "Networks" })}
+          onClick={() => void open({ view: "Networks" })}
         >
           <svg
             fill="currentColor"

@@ -62,7 +62,6 @@ const Header = forwardRef((_props, ref) => {
     }
   }, [network, Chain]);
 
-  console.log("EVM ContractAddress=", ContractAddress);
   const {
     data: contractData,
     // isPending: isContractLoading,
@@ -91,7 +90,7 @@ const Header = forwardRef((_props, ref) => {
 
   const {
     data: solanaData,
-    // isPending: isSolanaLoading,
+    isPending: isSolanaLoading,
     isSuccess: isSolanaSuccess,
     refetch: fetchSolana,
   } = useSolana();
@@ -115,12 +114,14 @@ const Header = forwardRef((_props, ref) => {
           if (network !== "solana") {
             void refetchContract?.();
           } else {
-            fetchSolana?.();
+            if (!isSolanaLoading) {
+              void fetchSolana?.();
+            }
           }
         },
       };
     },
-    [network, refetchContract, fetchSolana]
+    [network, refetchContract, isSolanaLoading, fetchSolana]
   );
 
   const data = network !== "solana" ? contractData : solanaData;
