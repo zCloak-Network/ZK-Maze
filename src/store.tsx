@@ -15,6 +15,7 @@ export type StoreType = {
   gameResult: number;
   network: SupportNetwork | null;
   gameStart: boolean;
+  bgm: boolean;
 };
 
 export type StoreDispatch = {
@@ -27,6 +28,7 @@ const initialState: StoreType = {
   gameResult: 0,
   network: null,
   gameStart: true,
+  bgm: true,
 };
 
 function reducer(state: StoreType, action: StoreDispatch) {
@@ -45,6 +47,9 @@ function reducer(state: StoreType, action: StoreDispatch) {
 
     case "start":
       result.gameStart = action.param as boolean;
+      break;
+    case "bgm":
+      result.bgm = action.param as boolean;
       break;
     default:
       throw new Error();
