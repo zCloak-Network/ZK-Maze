@@ -32,6 +32,7 @@ import { Tip } from "./Tip";
 import { Description } from "./Description";
 import { getMap } from "@/api/zkp";
 import { toast } from "react-toastify";
+import { BgmSwitch } from "./BgmSwitch";
 
 export const Game = () => {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -278,6 +279,7 @@ export const Game = () => {
           ref={wrapRef}
           className="flex relative flex-col items-center justify-center w-[640px] h-[640px] m-auto rounded-2xl bg-neutral overflow-hidden"
         >
+          <BgmSwitch />
           {gameIsOver && (
             <GameOver
               onRefresh={() => headerRef && headerRef.current?.refetch?.()}
