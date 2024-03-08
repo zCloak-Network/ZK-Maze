@@ -4,6 +4,7 @@ import { useAccountEffect } from "wagmi";
 import { useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useDispatchStore, useStateStore } from "@/store";
+import { Howl } from "howler";
 
 export default function GamePage() {
   const [isConnected, setIsconnected] = useState(false);
@@ -29,6 +30,21 @@ export default function GamePage() {
       window.location.reload();
     }
   }, [connected, dispatch, network]);
+
+  const sound = new Howl({
+    src: ["/bgm.mp3"],
+    volume: 0.7,
+    loop: true,
+  });
+
+  useEffect(() => {
+    console.log("isConnected", isConnected);
+    if (isConnected) {
+      sound.play();
+    } else {
+      sound.stop();
+    }
+  }, [isConnected]);
 
   return isConnected ? <Game /> : <Hero />;
 }

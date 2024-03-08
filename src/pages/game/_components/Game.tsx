@@ -11,6 +11,7 @@ import {
   Container,
   TilingSprite,
   AnimatedSprite,
+  Ticker,
 } from "pixi.js";
 import * as keystrokes from "@rwh/keystrokes";
 import { Keystrokes } from "@rwh/keystrokes";
@@ -39,12 +40,12 @@ export const Game = () => {
   const { bindKey } = keystrokes as unknown as Keystrokes;
   const [gameIsOver, setGameOver] = useState(false);
 
-  const app = useRef<Application>();
+  const app = useRef<Application>(new Application());
 
   useEffect(() => {
     console.log("Game run");
     void Promise.all([getMap(), Assets.load("/spritesheet.json")])
-      .then(([mapInfo, sheet]) => {
+      .then(async ([mapInfo, sheet]) => {
         setLoading(false);
         if (!mapInfo.data) {
           return console.error("get map fail");
@@ -56,21 +57,21 @@ export const Game = () => {
         const StageWidthCells = Map[0].length;
         const StageHeight = StageHeightCells * CellSize;
         const StageWidth = StageWidthCells * CellSize;
-        app.current = new Application({
+        await app.current.init({
           width: StageWidth,
           height: StageHeight,
         });
-        wrapRef.current?.appendChild(app.current.view as HTMLCanvasElement);
+        wrapRef.current?.appendChild(app.current.canvas);
 
         const gameScene = new Container();
         app.current.stage.addChild(gameScene);
 
         // map
-        const land = new TilingSprite(
-          sheet.textures[TypeTextureMap[0]],
-          StageWidth,
-          StageHeight
-        );
+        const land = new TilingSprite({
+          texture: sheet.textures[TypeTextureMap[0]],
+          width: StageWidth,
+          height: StageHeight,
+        });
         gameScene.addChild(land);
         const container = new Container();
         gameScene.addChild(container);
@@ -180,7 +181,8 @@ export const Game = () => {
         bindKey("a", handleKeyLeft);
 
         //Start the game loop
-        const gameLoop = (delta: number) => {
+        const gameLoop = (ticker: Ticker) => {
+          const delta = ticker.deltaTime;
           const { moveTarget, moving, gameOver, character } = gameState;
           if (character && moveTarget && moving) {
             if (isOutOfBound(Map, moveTarget)) {
