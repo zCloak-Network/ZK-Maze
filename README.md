@@ -7,6 +7,9 @@ Inside the game, the ZKP verify step uses our [ZK Coprocessor project](https://g
 
 ## How to play
 Control your character with W A S D or ⬆️ ⬇️ ⬅️ ➡️
+
 🔗 Demo Link: https://zkmaze.zkid.app/
+
 🎬 Demo video: 
-<iframe src="https://drive.google.com/file/d/1tdBWVj23rQ_sqBazmEl6I6v4Ky6liqL0/preview" width="640" height="480" allow="autoplay"></iframe>
+
+https://github.com/zCloak-Network/ZK-Maze/assets/71303553/86d58a2f-91c3-4316-9faa-1284a131b2dc
